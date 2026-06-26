@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <title>ProcessoCerto</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 860px; margin: 0 auto; padding: 0 16px 40px; }
+  body { font-family: Arial, sans-serif; max-width: 760px; margin: 0 auto; padding: 0 16px 40px; }
   label { display: block; margin-top: 12px; font-weight: bold; }
   input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; font-size: 1rem; }
   textarea { min-height: 80px; }
   button { margin-top: 12px; padding: 10px 20px; cursor: pointer; }
-  #login-msg, #status-msg-processos, #status-msg-ia, #status-msg-peticao { margin-top: 10px; font-weight: bold; }
+  #login-msg, #status-msg-processos, #status-msg-ia { margin-top: 10px; font-weight: bold; }
   #app { display: none; }
 
   /* Barra de navegação superior */
@@ -19,7 +19,6 @@
   }
   #menu-nav button {
     margin-top: 0; margin-right: 8px; background: #eee; border: 1px solid #ccc; border-radius: 6px;
-    padding: 8px 16px;
   }
   #menu-nav button.ativo { background: #2952cc; color: white; border-color: #2952cc; }
   #usuario-area { font-size: 0.9rem; color: #444; }
@@ -33,59 +32,20 @@
   .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
   .badge-verificado { background: #d4edda; color: #155724; }
   .badge-bloqueado { background: #f8d7da; color: #721c24; }
-  .badge-alta { background: #d4edda; color: #155724; }
-  .badge-media { background: #fff3cd; color: #856404; }
-  .badge-baixa { background: #f8d7da; color: #721c24; }
-
   .aviso { background: #e7f1ff; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; margin-bottom: 16px; }
 
-  /* Cards de resultado */
-  .resultado-card {
-    border: 1px solid #2952cc;
-    border-radius: 8px;
-    padding: 16px;
-    margin-top: 16px;
-    background: #f8faff;
-  }
+  .resultado-card { border: 1px solid #2952cc; border-radius: 8px; padding: 16px; margin-top: 16px; background: #f8faff; }
   .resultado-card h3 { margin-top: 0; color: #2952cc; }
   .resultado-card .campo { margin: 6px 0; }
-  .resultado-card .campo strong { display: inline-block; width: 140px; }
+  .campo-checkbox { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .campo-checkbox input { width: auto; margin: 0; }
+  .campo-checkbox label { margin: 0; font-weight: normal; }
   .peticao-box {
-    background: #f4f4f4;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 16px;
-    margin-top: 16px;
-    max-height: 400px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
+    background: #f4f4f4; border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-top: 16px;
+    max-height: 500px; overflow-y: auto; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.85rem;
   }
-  .btn-copiar {
-    background: #2952cc;
-    color: white;
-    border: none;
-    padding: 6px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+  .btn-copiar { background: #2952cc; color: white; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; }
   .btn-copiar:hover { background: #1a3b99; }
-
-  .campo-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-  }
-  .campo-checkbox input {
-    width: auto;
-    margin: 0;
-  }
-  .campo-checkbox label {
-    margin: 0;
-    font-weight: normal;
-  }
 </style>
 </head>
 <body>
@@ -107,9 +67,9 @@
 <div id="app">
   <div id="barra-superior">
     <div id="menu-nav">
-      <button id="btn-nav-processos" class="ativo">Meus Processos</button>
+      <button id="btn-nav-processos" class="ativo">Processos</button>
       <button id="btn-nav-peticao">Nova Petição</button>
-      <button id="btn-nav-ia">Jurisprudência</button>
+      <button id="btn-nav-ia">Assistente Jurídico</button>
     </div>
     <div id="usuario-area">
       <span id="usuario-logado"></span>
@@ -117,12 +77,10 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- SEÇÃO 1: MEUS PROCESSOS (JÁ EXISTENTE) -->
-  <!-- ========================================== -->
+  <!-- SEÇÃO: PROCESSOS -->
   <div id="secao-processos" class="secao ativa">
-    <h2>Meus Processos</h2>
-    <p>Processos cadastrados no sistema.</p>
+    <h2>Cadastro de processos</h2>
+    <p>Os campos seguem o vocabulário oficial do CNJ (Tabelas Processuais Unificadas).</p>
 
     <form id="form-processo">
       <label for="numero_cnj">Número CNJ do processo</label>
@@ -171,100 +129,89 @@
 
     <p id="status-msg-processos"></p>
 
-    <h2>Lista de processos</h2>
+    <h2>Processos cadastrados</h2>
     <div id="lista-processos">Carregando...</div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- SEÇÃO 2: NOVA PETIÇÃO (NOVO) -->
-  <!-- ========================================== -->
+  <!-- SEÇÃO: NOVA PETIÇÃO -->
   <div id="secao-peticao" class="secao">
-    <h2>📄 Nova Petição Inicial</h2>
-    
+    <h2>Nova Petição (rascunho)</h2>
+
     <div class="aviso">
-      ℹ️ Descreva o caso abaixo. A IA vai analisar a <strong>competência</strong> (vara, tribunal, rito) 
-      e gerar uma <strong>minuta de petição inicial</strong> pronta para revisão.
+      ⚠️ <strong>Rascunho gerado com apoio de IA (Gemini).</strong> A competência é decidida
+      por regras determinísticas do CPC (sem IA). O nome da ação e a fundamentação de mérito
+      usam IA com busca verificada — só citam fonte oficial (.jus.br) confirmada. Mesmo assim,
+      <strong>revise tudo antes de usar</strong>: isso é um rascunho, não uma peça pronta.
     </div>
 
     <form id="form-peticao">
-      <!-- Descrição do caso -->
-      <label for="peticao_descricao">📝 Descreva o caso</label>
-      <textarea id="peticao_descricao" required placeholder="Ex: João da Silva contratou a Empresa XPTO para prestar serviços de consultoria no valor de R$ 15.000,00. O serviço foi prestado, mas a empresa não pagou. João quer cobrar judicialmente."></textarea>
+      <label for="peticao_autor_nome">Nome completo do(a) autor(a)</label>
+      <input id="peticao_autor_nome" required placeholder="Ex: João da Silva" />
 
-      <!-- Natureza da relação -->
-      <label for="peticao_natureza">⚖️ Natureza da relação jurídica</label>
-      <input id="peticao_natureza" required placeholder="Ex: Contratual, Extracontratual, Trabalhista, Família, etc." />
+      <label for="peticao_autor_cpf">CPF do(a) autor(a)</label>
+      <input id="peticao_autor_cpf" placeholder="Ex: 000.000.000-00" />
 
-      <!-- Partes -->
-      <label for="peticao_partes">👤 Partes envolvidas</label>
-      <input id="peticao_partes" required placeholder="Ex: João Silva (autor) vs. Empresa XPTO Ltda (ré)" />
+      <label for="peticao_reu_nome">Nome completo do(a) réu(é)</label>
+      <input id="peticao_reu_nome" required placeholder="Ex: Empresa XPTO Ltda" />
 
-      <!-- Valor da causa -->
-      <label for="peticao_valor">💰 Valor da causa (R$)</label>
-      <input id="peticao_valor" type="number" required placeholder="15000" />
+      <label for="peticao_reu_cpf_cnpj">CPF/CNPJ do(a) réu(é)</label>
+      <input id="peticao_reu_cpf_cnpj" placeholder="Ex: 00.000.000/0001-00" />
 
-      <!-- Endereço do réu -->
-      <label for="peticao_endereco">📍 Endereço do réu</label>
+      <label for="peticao_endereco">Endereço do(a) réu(é)</label>
       <input id="peticao_endereco" placeholder="Ex: Rua das Flores, 123, São Paulo - SP" />
 
-      <!-- Tribunal preferencial (opcional) -->
-      <label for="peticao_tribunal">🏛️ Tribunal preferencial (opcional)</label>
-      <input id="peticao_tribunal" placeholder="Ex: TJSP, TRF1, TRT2, etc." />
+      <label for="peticao_natureza">Natureza da relação jurídica</label>
+      <input id="peticao_natureza" required placeholder="Ex: Contratual, Trabalhista, Família, etc." />
 
-      <!-- Checkboxes -->
+      <label for="peticao_valor">Valor da causa (R$)</label>
+      <input id="peticao_valor" type="number" required placeholder="15000" />
+
+      <label for="peticao_descricao">Descreva o caso</label>
+      <textarea id="peticao_descricao" required placeholder="Ex: o autor contratou a ré para prestar serviço de consultoria no valor de R$ 15.000, o serviço foi prestado mas não houve pagamento."></textarea>
+
       <div class="campo-checkbox">
         <input id="peticao_ente_publico" type="checkbox" />
         <label for="peticao_ente_publico">Envolve ente público (União, Estado, Município)?</label>
       </div>
-
       <div class="campo-checkbox">
         <input id="peticao_menor" type="checkbox" />
         <label for="peticao_menor">Envolve menor de idade?</label>
       </div>
-
       <div class="campo-checkbox">
         <input id="peticao_incapaz" type="checkbox" />
-        <label for="peticao_incapaz">Envolve incapaz (interdição)?</label>
+        <label for="peticao_incapaz">Envolve pessoa incapaz?</label>
       </div>
-
       <div class="campo-checkbox">
         <input id="peticao_urgente" type="checkbox" />
-        <label for="peticao_urgente">⚠️ É urgente (tutela de urgência)?</label>
+        <label for="peticao_urgente">É urgente (tutela de urgência)?</label>
       </div>
 
-      <button type="submit" id="btn-analisar">🔍 Analisar Competência e Gerar Petição</button>
+      <button type="submit" id="btn-gerar-peticao">Gerar rascunho de petição</button>
     </form>
 
     <p id="status-msg-peticao"></p>
 
-    <!-- Área de resultado -->
     <div id="resultado-peticao" style="display: none;">
       <div class="resultado-card">
-        <h3>🎯 Competência Identificada</h3>
+        <h3>Competência (decidida por regra, sem IA)</h3>
         <div class="campo"><strong>Vara:</strong> <span id="r-vara"></span></div>
         <div class="campo"><strong>Tribunal:</strong> <span id="r-tribunal"></span></div>
-        <div class="campo"><strong>Comarca:</strong> <span id="r-comarca"></span></div>
         <div class="campo"><strong>Rito:</strong> <span id="r-rito"></span></div>
-        <div class="campo"><strong>Fundação legal:</strong> <span id="r-fundamentacao"></span></div>
-        <div class="campo"><strong>Observações:</strong> <span id="r-observacoes"></span></div>
-        <div class="campo">
-          <strong>Confiança:</strong> 
-          <span id="r-confianca" class="badge badge-alta"></span>
-        </div>
-        <div class="campo"><strong>Regras aplicadas:</strong> <span id="r-regras"></span></div>
+        <div class="campo"><strong>Fundamento legal:</strong> <span id="r-fundamentacao"></span></div>
+        <div class="campo"><strong>Regra aplicada:</strong> <span id="r-regra"></span></div>
       </div>
 
-      <h3>📄 Minuta da Petição Inicial</h3>
-      <button class="btn-copiar" id="btn-copiar-peticao">📋 Copiar petição</button>
+      <h3>Fundamentação de mérito (fontes verificadas)</h3>
+      <div id="citacoes-merito"></div>
+
+      <h3>Minuta da petição (rascunho)</h3>
+      <button class="btn-copiar" id="btn-copiar-peticao">Copiar petição</button>
       <div class="peticao-box" id="peticao-gerada"></div>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- SEÇÃO 3: JURISPRUDÊNCIA (JÁ EXISTENTE) -->
-  <!-- ========================================== -->
   <div id="secao-ia" class="secao">
-    <h2>🔍 Assistente Jurídico - Jurisprudência</h2>
+    <h2>Assistente Jurídico</h2>
 
     <div class="aviso">
       ℹ️ As citações abaixo vêm de busca real (Gemini + Google Search). O selo
@@ -299,9 +246,8 @@
     appId: "1:702032107490:web:73d37f4a608f60bacb8bbb",
   };
 
-  // URLS CORRIGIDAS - AGORA COM O CAMINHO DA FUNÇÃO
-  const URL_FUNCAO_BUSCA_IA = "https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app/buscarJurisprudencia";
-  const URL_FUNCAO_ANALISE = "https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app/analisarCompetencia";
+  const URL_FUNCAO_BUSCA_IA = "https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app";
+  const URL_FUNCAO_PETICAO = "COLE_AQUI_A_URL_DA_FUNCAO_GERAR_PETICAO";
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
@@ -341,7 +287,6 @@
     }
   });
 
-  // ---------- NAVEGAÇÃO ENTRE SEÇÕES ----------
   function mostrarSecao(nome) {
     document.getElementById("secao-processos").classList.toggle("ativa", nome === "processos");
     document.getElementById("secao-peticao").classList.toggle("ativa", nome === "peticao");
@@ -408,112 +353,98 @@
     });
   }
 
-  // ==========================================
-  // SEÇÃO NOVA PETIÇÃO
-  // ==========================================
+  // ---------- SEÇÃO NOVA PETIÇÃO ----------
   document.getElementById("form-peticao").addEventListener("submit", async (evento) => {
     evento.preventDefault();
     const statusMsg = document.getElementById("status-msg-peticao");
     const resultadoDiv = document.getElementById("resultado-peticao");
-    const btnAnalisar = document.getElementById("btn-analisar");
-
-    const usuario = auth.currentUser;
-    if (!usuario) {
-      statusMsg.textContent = "Você precisa estar logado.";
-      statusMsg.style.color = "red";
-      return;
-    }
+    const btn = document.getElementById("btn-gerar-peticao");
 
     const dadosCaso = {
-      natureza: document.getElementById("peticao_natureza").value.trim(),
-      partes: document.getElementById("peticao_partes").value.trim(),
-      valorCausa: parseFloat(document.getElementById("peticao_valor").value) || 0,
+      autorNome: document.getElementById("peticao_autor_nome").value.trim(),
+      autorCpf: document.getElementById("peticao_autor_cpf").value.trim(),
+      reuNome: document.getElementById("peticao_reu_nome").value.trim(),
+      reuCpfCnpj: document.getElementById("peticao_reu_cpf_cnpj").value.trim(),
       enderecoReu: document.getElementById("peticao_endereco").value.trim(),
+      natureza: document.getElementById("peticao_natureza").value.trim(),
+      valorCausa: parseFloat(document.getElementById("peticao_valor").value) || 0,
+      descricao: document.getElementById("peticao_descricao").value.trim(),
       possuiEntePublico: document.getElementById("peticao_ente_publico").checked,
       envolveMenor: document.getElementById("peticao_menor").checked,
       envolveIncapaz: document.getElementById("peticao_incapaz").checked,
-      tipoAcao: "individual",
       urgente: document.getElementById("peticao_urgente").checked,
-      descricao: document.getElementById("peticao_descricao").value.trim(),
-      tribunalPreferencial: document.getElementById("peticao_tribunal").value.trim(),
     };
 
-    if (!dadosCaso.descricao || !dadosCaso.natureza || !dadosCaso.partes || dadosCaso.valorCausa <= 0) {
-      statusMsg.textContent = "Preencha todos os campos obrigatórios.";
-      statusMsg.style.color = "red";
-      return;
-    }
-
     resultadoDiv.style.display = "none";
-    statusMsg.textContent = "⏳ Analisando o caso...";
-    statusMsg.style.color = "black";
-    btnAnalisar.disabled = true;
+    statusMsg.textContent = "Gerando rascunho (isso pode levar alguns segundos, por causa da busca de jurisprudência)...";
+    statusMsg.style.color = "#2952cc";
+    btn.disabled = true;
 
     try {
-      const resposta = await fetch(URL_FUNCAO_ANALISE, {
+      const resposta = await fetch(URL_FUNCAO_PETICAO, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          advogado_id: usuario.uid,
-          caso: dadosCaso,
-        }),
+        body: JSON.stringify({ caso: dadosCaso, advogado_id: auth.currentUser.uid }),
       });
-
       const dados = await resposta.json();
 
       if (!resposta.ok) {
-        statusMsg.textContent = "Erro: " + (dados.erro || "Falha na análise");
+        statusMsg.textContent = "Erro: " + (dados.erro || "Falha ao gerar petição");
         statusMsg.style.color = "red";
-        btnAnalisar.disabled = false;
         return;
       }
 
-      document.getElementById("r-vara").textContent = dados.decisao.vara || "N/A";
-      document.getElementById("r-tribunal").textContent = dados.decisao.tribunal || "N/A";
-      document.getElementById("r-comarca").textContent = dados.decisao.comarca || "N/A";
-      document.getElementById("r-rito").textContent = dados.decisao.rito || "N/A";
-      document.getElementById("r-fundamentacao").textContent = dados.decisao.fundamentacao || "N/A";
-      document.getElementById("r-observacoes").textContent = dados.decisao.observacoes || "Nenhuma";
+      document.getElementById("r-vara").textContent = dados.decisao_competencia.vara;
+      document.getElementById("r-tribunal").textContent = dados.decisao_competencia.tribunal;
+      document.getElementById("r-rito").textContent = dados.decisao_competencia.rito;
+      document.getElementById("r-fundamentacao").textContent = dados.decisao_competencia.fundamentacao_legal;
+      document.getElementById("r-regra").textContent = dados.decisao_competencia.regra_aplicada;
 
-      const confiancaSpan = document.getElementById("r-confianca");
-      const nivel = dados.confianca || "baixa";
-      confiancaSpan.textContent = nivel.toUpperCase();
-      confiancaSpan.className = `badge badge-${nivel}`;
+      const citacoesDiv = document.getElementById("citacoes-merito");
+      citacoesDiv.innerHTML = "";
+      if (dados.citacoes_merito.length === 0) {
+        citacoesDiv.innerHTML = `<p style="color:#721c24;">Nenhuma fonte oficial verificada foi encontrada — a fundamentação de mérito precisa ser pesquisada manualmente.</p>`;
+      } else {
+        dados.citacoes_merito.forEach((c) => {
+          const card = document.createElement("div");
+          card.className = "citacao-card";
+          card.innerHTML = `
+            <span class="badge badge-verificado">Verificado</span>
+            <p>${c.texto_citado}</p>
+            <p><strong>${c.tribunal}</strong></p>
+            <p><a href="${c.link_fonte}" target="_blank">Ver fonte original</a></p>
+          `;
+          citacoesDiv.appendChild(card);
+        });
+      }
 
-      const regras = dados.detalhes?.regras_aplicadas || [];
-      document.getElementById("r-regras").textContent = regras.length > 0 ? regras.join("; ") : "Nenhuma regra especial aplicada";
-
-      document.getElementById("peticao-gerada").textContent = dados.peticao || "Petição não gerada.";
-
+      document.getElementById("peticao-gerada").textContent = dados.peticao;
       resultadoDiv.style.display = "block";
-      statusMsg.textContent = "✅ Análise concluída com sucesso!";
+      statusMsg.textContent = "Rascunho gerado. Revise tudo antes de usar.";
       statusMsg.style.color = "green";
       resultadoDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-
     } catch (erro) {
-      console.error("Erro na análise:", erro);
-      statusMsg.textContent = "Erro ao analisar. Veja o console.";
+      console.error("Erro ao gerar petição:", erro);
+      statusMsg.textContent = "Erro ao gerar. Veja o console do navegador.";
       statusMsg.style.color = "red";
     } finally {
-      btnAnalisar.disabled = false;
+      btn.disabled = false;
     }
   });
 
-  // ---------- COPIAR PETIÇÃO ----------
   document.getElementById("btn-copiar-peticao").addEventListener("click", async () => {
-    const peticaoTexto = document.getElementById("peticao-gerada").textContent;
+    const texto = document.getElementById("peticao-gerada").textContent;
     try {
-      await navigator.clipboard.writeText(peticaoTexto);
+      await navigator.clipboard.writeText(texto);
       const btn = document.getElementById("btn-copiar-peticao");
-      btn.textContent = "✅ Copiado!";
-      setTimeout(() => { btn.textContent = "📋 Copiar petição"; }, 2000);
+      btn.textContent = "Copiado!";
+      setTimeout(() => { btn.textContent = "Copiar petição"; }, 2000);
     } catch (erro) {
-      console.error("Erro ao copiar:", erro);
-      alert("Não foi possível copiar. Selecione o texto manualmente.");
+      alert("Não foi possível copiar automaticamente. Selecione o texto manualmente.");
     }
   });
 
-  // ---------- SEÇÃO JURISPRUDÊNCIA ----------
+  // ---------- SEÇÃO ASSISTENTE JURÍDICO ----------
   document.getElementById("btn-buscar").addEventListener("click", async () => {
     const pergunta = document.getElementById("pergunta").value.trim();
     const statusMsg = document.getElementById("status-msg-ia");
