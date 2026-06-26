@@ -2,229 +2,941 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ProcessoCerto</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-  body { font-family: Arial, sans-serif; max-width: 760px; margin: 0 auto; padding: 0 16px 40px; }
-  label { display: block; margin-top: 12px; font-weight: bold; }
-  input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; font-size: 1rem; }
-  textarea { min-height: 80px; }
-  button { margin-top: 12px; padding: 10px 20px; cursor: pointer; }
-  #login-msg, #status-msg-processos, #status-msg-ia { margin-top: 10px; font-weight: bold; }
+  /* ── TOKENS ── */
+  :root {
+    --bg:         #0d1117;
+    --surface:    #161b22;
+    --surface2:   #21262d;
+    --border:     #30363d;
+    --accent:     #2f81f7;
+    --accent-dim: #1a4a8a;
+    --accent-glow:#2f81f720;
+    --success:    #3fb950;
+    --success-bg: #0f2a14;
+    --warning:    #d29922;
+    --warning-bg: #2a1f0a;
+    --danger:     #f85149;
+    --danger-bg:  #2a0f0f;
+    --text:       #e6edf3;
+    --text-dim:   #8b949e;
+    --text-muted: #484f58;
+    --radius:     8px;
+    --radius-lg:  12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── LOGIN ── */
+  #login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 0%, #1a2f50 0%, var(--bg) 70%);
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 24px 64px #00000060;
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .login-logo .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .login-logo span {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .login-logo small {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .login-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  /* ── FORM ELEMENTS ── */
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  textarea { min-height: 90px; resize: vertical; }
+
+  select { cursor: pointer; }
+  select option { background: var(--surface2); }
+
+  .field { margin-bottom: 16px; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 9px 16px;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #388bfd; }
+  .btn-primary:disabled { background: var(--accent-dim); cursor: not-allowed; opacity: 0.7; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--border);
+  }
+  .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+
+  .btn-full { width: 100%; justify-content: center; padding: 11px; font-size: 14px; }
+
+  /* ── APP SHELL ── */
   #app { display: none; }
 
-  /* Barra de navegação superior */
-  #barra-superior {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0; border-bottom: 1px solid #ddd; margin-bottom: 20px;
+  .shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
   }
-  #menu-nav button {
-    margin-top: 0; margin-right: 8px; background: #eee; border: 1px solid #ccc; border-radius: 6px;
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
   }
-  #menu-nav button.ativo { background: #2952cc; color: white; border-color: #2952cc; }
-  #usuario-area { font-size: 0.9rem; color: #444; }
-  #usuario-area button { margin-top: 0; margin-left: 10px; padding: 4px 10px; }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .sidebar-logo .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-logo-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .nav-section {
+    padding: 0 10px;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 8px;
+    margin: 10px 0 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    transition: all 0.12s;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+
+  .nav-item.ativo {
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid #2f81f730;
+  }
+
+  .nav-item .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 12px 10px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+  }
+
+  .user-avatar {
+    width: 28px; height: 28px;
+    background: var(--accent-dim);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .user-email {
+    font-size: 11px;
+    color: var(--text-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    padding: 28px 32px;
+    max-width: 860px;
+  }
+
+  .page-header {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
 
   .secao { display: none; }
   .secao.ativa { display: block; }
 
-  .processo-item { border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
-  .citacao-card { border: 1px solid #ccc; border-radius: 8px; padding: 14px; margin-top: 14px; }
-  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
-  .badge-verificado { background: #d4edda; color: #155724; }
-  .badge-bloqueado { background: #f8d7da; color: #721c24; }
-  .aviso { background: #e7f1ff; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; margin-bottom: 16px; }
-
-  .resultado-card { border: 1px solid #2952cc; border-radius: 8px; padding: 16px; margin-top: 16px; background: #f8faff; }
-  .resultado-card h3 { margin-top: 0; color: #2952cc; }
-  .resultado-card .campo { margin: 6px 0; }
-  .campo-checkbox { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-  .campo-checkbox input { width: auto; margin: 0; }
-  .campo-checkbox label { margin: 0; font-weight: normal; }
-  .peticao-box {
-    background: #f4f4f4; border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-top: 16px;
-    max-height: 500px; overflow-y: auto; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.85rem;
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
   }
-  .btn-copiar { background: #2952cc; color: white; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; }
-  .btn-copiar:hover { background: #1a3b99; }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  /* ── ALERTAS ── */
+  .alert {
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+
+  .alert-warning {
+    background: var(--warning-bg);
+    border: 1px solid #d2992240;
+    color: #e3b341;
+  }
+
+  .alert-info {
+    background: #0d1f38;
+    border: 1px solid #2f81f730;
+    color: #79c0ff;
+  }
+
+  .alert-success {
+    background: var(--success-bg);
+    border: 1px solid #3fb95040;
+    color: var(--success);
+  }
+
+  .alert-error {
+    background: var(--danger-bg);
+    border: 1px solid #f8514940;
+    color: var(--danger);
+  }
+
+  /* ── CHECKBOXES ── */
+  .check-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.12s;
+  }
+
+  .check-item:hover { border-color: var(--accent); }
+
+  .check-item input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .check-item label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text);
+    text-transform: none;
+    letter-spacing: 0;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  /* ── PROCESSO ITEM ── */
+  .processo-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .processo-cnj {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .processo-info {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-ok { background: var(--success-bg); color: var(--success); border: 1px solid #3fb95030; }
+  .badge-nok { background: var(--danger-bg); color: var(--danger); border: 1px solid #f8514930; }
+  .badge-fase { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+
+  /* ── RESULTADO COMPETÊNCIA ── */
+  .competencia-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .comp-field {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+
+  .comp-field-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+  }
+
+  .comp-field-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .comp-regra {
+    grid-column: 1/-1;
+    background: var(--accent-glow);
+    border-color: #2f81f730;
+  }
+
+  .comp-regra .comp-field-value {
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  /* ── CITAÇÃO CARD ── */
+  .citacao-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .citacao-card .citacao-texto {
+    font-size: 13px;
+    color: var(--text);
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+
+  .citacao-card .citacao-tribunal {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .citacao-card a {
+    color: var(--accent);
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .citacao-card a:hover { text-decoration: underline; }
+
+  /* ── PETIÇÃO BOX ── */
+  .peticao-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    max-height: 480px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-top: 12px;
+  }
+
+  .peticao-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .peticao-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── ASSISTENTE IA ── */
+  .ia-search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .ia-search textarea {
+    flex: 1;
+    min-height: 56px;
+    resize: none;
+  }
+
+  .ia-search .btn { align-self: flex-end; white-space: nowrap; }
+
+  /* ── STATUS MESSAGES ── */
+  .status-msg {
+    font-size: 13px;
+    font-weight: 500;
+    margin: 12px 0;
+    min-height: 20px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 32px; margin-bottom: 10px; }
+  .empty p { font-size: 13px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── LOADING SPINNER ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
 </style>
 </head>
 <body>
 
-<!-- TELA DE LOGIN -->
-<div id="login" style="max-width: 400px; margin: 60px auto;">
-  <h1>ProcessoCerto</h1>
-  <form id="form-login">
-    <label for="login-email">E-mail</label>
-    <input id="login-email" type="email" required />
-    <label for="login-senha">Senha</label>
-    <input id="login-senha" type="password" required />
-    <button type="submit">Entrar</button>
-  </form>
-  <p id="login-msg"></p>
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">⚖️</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">ProcessoCerto</div>
+        <div style="font-size:11px;color:var(--text-muted)">Gestão jurídica inteligente</div>
+      </div>
+    </div>
+    <h2>Entrar na sua conta</h2>
+    <form id="form-login">
+      <div class="field">
+        <label for="login-email">E-mail</label>
+        <input id="login-email" type="email" placeholder="advogado@escritorio.com.br" required />
+      </div>
+      <div class="field">
+        <label for="login-senha">Senha</label>
+        <input id="login-senha" type="password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Entrar</button>
+    </form>
+    <p id="login-msg" class="status-msg"></p>
+  </div>
 </div>
 
-<!-- APP, depois do login -->
+<!-- ═══════════════ APP ═══════════════ -->
 <div id="app">
-  <div id="barra-superior">
-    <div id="menu-nav">
-      <button id="btn-nav-processos" class="ativo">Processos</button>
-      <button id="btn-nav-peticao">Nova Petição</button>
-      <button id="btn-nav-ia">Assistente Jurídico</button>
-    </div>
-    <div id="usuario-area">
-      <span id="usuario-logado"></span>
-      <button id="btn-sair">Sair</button>
-    </div>
-  </div>
+  <div class="shell">
 
-  <!-- SEÇÃO: PROCESSOS -->
-  <div id="secao-processos" class="secao ativa">
-    <h2>Cadastro de processos</h2>
-    <p>Os campos seguem o vocabulário oficial do CNJ (Tabelas Processuais Unificadas).</p>
-
-    <form id="form-processo">
-      <label for="numero_cnj">Número CNJ do processo</label>
-      <input id="numero_cnj" required placeholder="0000000-00.0000.0.00.0000" />
-
-      <label for="classe_nome">Classe processual</label>
-      <input id="classe_nome" required placeholder="Ex: Procedimento Comum Cível" />
-
-      <label for="assunto_nome">Assunto</label>
-      <input id="assunto_nome" required placeholder="Ex: Indenização por Dano Moral" />
-
-      <label for="tribunal">Tribunal</label>
-      <input id="tribunal" required placeholder="Ex: TJSP" />
-
-      <label for="vara">Vara</label>
-      <input id="vara" placeholder="Ex: 3ª Vara Cível" />
-
-      <label for="comarca">Comarca</label>
-      <input id="comarca" placeholder="Ex: São Paulo" />
-
-      <label for="instancia">Instância</label>
-      <select id="instancia">
-        <option value="1grau">1º grau</option>
-        <option value="2grau">2º grau</option>
-        <option value="superior">Superior</option>
-      </select>
-
-      <label for="polo_ativo">Polo ativo (separe vários nomes por vírgula)</label>
-      <input id="polo_ativo" placeholder="Nome do(a) autor(a)" />
-
-      <label for="polo_passivo">Polo passivo (separe vários nomes por vírgula)</label>
-      <input id="polo_passivo" placeholder="Nome do(a) réu(é)" />
-
-      <label for="fase">Fase</label>
-      <select id="fase">
-        <option value="conhecimento">Conhecimento</option>
-        <option value="execucao">Execução</option>
-        <option value="cumprimento_de_sentenca">Cumprimento de sentença</option>
-      </select>
-
-      <label for="data_distribuicao">Data de distribuição</label>
-      <input id="data_distribuicao" type="date" />
-
-      <button type="submit">Salvar processo</button>
-    </form>
-
-    <p id="status-msg-processos"></p>
-
-    <h2>Processos cadastrados</h2>
-    <div id="lista-processos">Carregando...</div>
-  </div>
-
-  <!-- SEÇÃO: NOVA PETIÇÃO -->
-  <div id="secao-peticao" class="secao">
-    <h2>Nova Petição (rascunho)</h2>
-
-    <div class="aviso">
-      ⚠️ <strong>Rascunho gerado com apoio de IA (Gemini).</strong> A competência é decidida
-      por regras determinísticas do CPC (sem IA). O nome da ação e a fundamentação de mérito
-      usam IA com busca verificada — só citam fonte oficial (.jus.br) confirmada. Mesmo assim,
-      <strong>revise tudo antes de usar</strong>: isso é um rascunho, não uma peça pronta.
-    </div>
-
-    <form id="form-peticao">
-      <label for="peticao_autor_nome">Nome completo do(a) autor(a)</label>
-      <input id="peticao_autor_nome" required placeholder="Ex: João da Silva" />
-
-      <label for="peticao_autor_cpf">CPF do(a) autor(a)</label>
-      <input id="peticao_autor_cpf" placeholder="Ex: 000.000.000-00" />
-
-      <label for="peticao_reu_nome">Nome completo do(a) réu(é)</label>
-      <input id="peticao_reu_nome" required placeholder="Ex: Empresa XPTO Ltda" />
-
-      <label for="peticao_reu_cpf_cnpj">CPF/CNPJ do(a) réu(é)</label>
-      <input id="peticao_reu_cpf_cnpj" placeholder="Ex: 00.000.000/0001-00" />
-
-      <label for="peticao_endereco">Endereço do(a) réu(é)</label>
-      <input id="peticao_endereco" placeholder="Ex: Rua das Flores, 123, São Paulo - SP" />
-
-      <label for="peticao_natureza">Natureza da relação jurídica</label>
-      <input id="peticao_natureza" required placeholder="Ex: Contratual, Trabalhista, Família, etc." />
-
-      <label for="peticao_valor">Valor da causa (R$)</label>
-      <input id="peticao_valor" type="number" required placeholder="15000" />
-
-      <label for="peticao_descricao">Descreva o caso</label>
-      <textarea id="peticao_descricao" required placeholder="Ex: o autor contratou a ré para prestar serviço de consultoria no valor de R$ 15.000, o serviço foi prestado mas não houve pagamento."></textarea>
-
-      <div class="campo-checkbox">
-        <input id="peticao_ente_publico" type="checkbox" />
-        <label for="peticao_ente_publico">Envolve ente público (União, Estado, Município)?</label>
-      </div>
-      <div class="campo-checkbox">
-        <input id="peticao_menor" type="checkbox" />
-        <label for="peticao_menor">Envolve menor de idade?</label>
-      </div>
-      <div class="campo-checkbox">
-        <input id="peticao_incapaz" type="checkbox" />
-        <label for="peticao_incapaz">Envolve pessoa incapaz?</label>
-      </div>
-      <div class="campo-checkbox">
-        <input id="peticao_urgente" type="checkbox" />
-        <label for="peticao_urgente">É urgente (tutela de urgência)?</label>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">⚖️</div>
+        <div>
+          <div class="sidebar-logo-text">ProcessoCerto</div>
+          <div class="sidebar-logo-sub">Gestão jurídica</div>
+        </div>
       </div>
 
-      <button type="submit" id="btn-gerar-peticao">Gerar rascunho de petição</button>
-    </form>
+      <nav class="nav-section">
+        <div class="nav-label">Principal</div>
+        <button id="btn-nav-processos" class="nav-item ativo">
+          <span class="nav-icon">📁</span> Processos
+        </button>
+        <button id="btn-nav-peticao" class="nav-item">
+          <span class="nav-icon">📝</span> Nova Petição
+        </button>
+        <button id="btn-nav-ia" class="nav-item">
+          <span class="nav-icon">🔍</span> Assistente Jurídico
+        </button>
+      </nav>
 
-    <p id="status-msg-peticao"></p>
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <div class="user-avatar" id="usuario-avatar">?</div>
+          <div class="user-email" id="usuario-logado"></div>
+        </div>
+        <button id="btn-sair" class="btn btn-danger" style="width:100%;justify-content:center;">
+          Sair
+        </button>
+      </div>
+    </aside>
 
-    <div id="resultado-peticao" style="display: none;">
-      <div class="resultado-card">
-        <h3>Competência (decidida por regra, sem IA)</h3>
-        <div class="campo"><strong>Vara:</strong> <span id="r-vara"></span></div>
-        <div class="campo"><strong>Tribunal:</strong> <span id="r-tribunal"></span></div>
-        <div class="campo"><strong>Rito:</strong> <span id="r-rito"></span></div>
-        <div class="campo"><strong>Fundamento legal:</strong> <span id="r-fundamentacao"></span></div>
-        <div class="campo"><strong>Regra aplicada:</strong> <span id="r-regra"></span></div>
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ── PROCESSOS ── -->
+      <div id="secao-processos" class="secao ativa">
+        <div class="page-header">
+          <h1>Processos</h1>
+          <p>Campos seguem o vocabulário oficial do CNJ (Tabelas Processuais Unificadas).</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📋 Cadastrar processo</div>
+          <form id="form-processo">
+            <div class="field">
+              <label for="numero_cnj">Número CNJ</label>
+              <input id="numero_cnj" required placeholder="0000000-00.0000.0.00.0000" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="classe_nome">Classe processual</label>
+                <input id="classe_nome" required placeholder="Ex: Procedimento Comum Cível" />
+              </div>
+              <div class="field">
+                <label for="assunto_nome">Assunto</label>
+                <input id="assunto_nome" required placeholder="Ex: Dano Moral" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="tribunal">Tribunal</label>
+                <input id="tribunal" required placeholder="Ex: TJSP" />
+              </div>
+              <div class="field">
+                <label for="vara">Vara</label>
+                <input id="vara" placeholder="Ex: 3ª Vara Cível" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="comarca">Comarca</label>
+                <input id="comarca" placeholder="Ex: São Paulo" />
+              </div>
+              <div class="field">
+                <label for="instancia">Instância</label>
+                <select id="instancia">
+                  <option value="1grau">1º grau</option>
+                  <option value="2grau">2º grau</option>
+                  <option value="superior">Superior</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="polo_ativo">Polo ativo</label>
+                <input id="polo_ativo" placeholder="Nomes separados por vírgula" />
+              </div>
+              <div class="field">
+                <label for="polo_passivo">Polo passivo</label>
+                <input id="polo_passivo" placeholder="Nomes separados por vírgula" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="fase">Fase</label>
+                <select id="fase">
+                  <option value="conhecimento">Conhecimento</option>
+                  <option value="execucao">Execução</option>
+                  <option value="cumprimento_de_sentenca">Cumprimento de sentença</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="data_distribuicao">Data de distribuição</label>
+                <input id="data_distribuicao" type="date" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar processo</button>
+          </form>
+          <p id="status-msg-processos" class="status-msg"></p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📂 Processos cadastrados</div>
+          <div id="lista-processos">
+            <div class="empty">
+              <div class="empty-icon">📭</div>
+              <p>Carregando processos...</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <h3>Fundamentação de mérito (fontes verificadas)</h3>
-      <div id="citacoes-merito"></div>
+      <!-- ── PETIÇÃO ── -->
+      <div id="secao-peticao" class="secao">
+        <div class="page-header">
+          <h1>Nova Petição</h1>
+          <p>Rascunho gerado com apoio de IA — revise antes de protocolar.</p>
+        </div>
 
-      <h3>Minuta da petição (rascunho)</h3>
-      <button class="btn-copiar" id="btn-copiar-peticao">Copiar petição</button>
-      <div class="peticao-box" id="peticao-gerada"></div>
-    </div>
-  </div>
+        <div class="alert alert-warning">
+          ⚠️ <div><strong>Rascunho com apoio de IA (Gemini).</strong> A competência é decidida por regras do CPC, sem IA. O nome da ação e a fundamentação de mérito usam IA com busca verificada — só citam fontes oficiais (.jus.br). <strong>Revise tudo antes de usar.</strong></div>
+        </div>
 
-  <div id="secao-ia" class="secao">
-    <h2>Assistente Jurídico</h2>
+        <div class="card">
+          <div class="card-title">👤 Partes</div>
+          <form id="form-peticao">
+            <div class="field-row">
+              <div class="field">
+                <label for="peticao_autor_nome">Nome do(a) autor(a)</label>
+                <input id="peticao_autor_nome" required placeholder="Ex: João da Silva" />
+              </div>
+              <div class="field">
+                <label for="peticao_autor_cpf">CPF do(a) autor(a)</label>
+                <input id="peticao_autor_cpf" placeholder="000.000.000-00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="peticao_reu_nome">Nome do(a) réu(é)</label>
+                <input id="peticao_reu_nome" required placeholder="Ex: Empresa XPTO Ltda" />
+              </div>
+              <div class="field">
+                <label for="peticao_reu_cpf_cnpj">CPF/CNPJ do(a) réu(é)</label>
+                <input id="peticao_reu_cpf_cnpj" placeholder="00.000.000/0001-00" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="peticao_endereco">Endereço do(a) réu(é)</label>
+              <input id="peticao_endereco" placeholder="Rua, número, cidade — Estado" />
+            </div>
 
-    <div class="aviso">
-      ℹ️ As citações abaixo vêm de busca real (Gemini + Google Search). O selo
-      "Verificado" só aparece quando a fonte é oficial (.jus.br) e veio de uma
-      busca de verdade — qualquer outra coisa fica marcada como "Não confirmado".
-    </div>
+            <hr class="divider" />
+            <div class="card-title">⚖️ Caso</div>
 
-    <label for="pergunta">Sobre o que você quer pesquisar jurisprudência?</label>
-    <textarea id="pergunta" placeholder="Ex: dano moral por negativação indevida após pagamento"></textarea>
-    <button id="btn-buscar">Buscar jurisprudência</button>
+            <div class="field-row">
+              <div class="field">
+                <label for="peticao_natureza">Natureza jurídica</label>
+                <input id="peticao_natureza" required placeholder="Ex: Contratual, Trabalhista..." />
+              </div>
+              <div class="field">
+                <label for="peticao_valor">Valor da causa (R$)</label>
+                <input id="peticao_valor" type="number" required placeholder="Ex: 15000" />
+              </div>
+            </div>
 
-    <p id="status-msg-ia"></p>
-    <div id="resultados-ia"></div>
+            <div class="field">
+              <label for="peticao_descricao">Descrição do caso</label>
+              <textarea id="peticao_descricao" required placeholder="Descreva os fatos com o máximo de detalhes possível..."></textarea>
+            </div>
+
+            <hr class="divider" />
+            <div class="card-title">🔎 Características especiais</div>
+
+            <div class="check-group">
+              <div class="check-item">
+                <input id="peticao_ente_publico" type="checkbox" />
+                <label for="peticao_ente_publico">Envolve ente público (União, Estado, Município)</label>
+              </div>
+              <div class="check-item">
+                <input id="peticao_menor" type="checkbox" />
+                <label for="peticao_menor">Envolve menor de idade</label>
+              </div>
+              <div class="check-item">
+                <input id="peticao_incapaz" type="checkbox" />
+                <label for="peticao_incapaz">Envolve pessoa incapaz</label>
+              </div>
+              <div class="check-item">
+                <input id="peticao_urgente" type="checkbox" />
+                <label for="peticao_urgente">Urgente (tutela de urgência)</label>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-gerar-peticao" class="btn btn-primary btn-full">
+              Gerar rascunho de petição
+            </button>
+          </form>
+          <p id="status-msg-peticao" class="status-msg"></p>
+        </div>
+
+        <!-- RESULTADO -->
+        <div id="resultado-peticao" style="display:none;">
+          <div class="card">
+            <div class="card-title">🏛️ Competência (decidida por regra, sem IA)</div>
+            <div class="competencia-grid">
+              <div class="comp-field">
+                <div class="comp-field-label">Vara</div>
+                <div class="comp-field-value" id="r-vara">—</div>
+              </div>
+              <div class="comp-field">
+                <div class="comp-field-label">Tribunal</div>
+                <div class="comp-field-value" id="r-tribunal">—</div>
+              </div>
+              <div class="comp-field">
+                <div class="comp-field-label">Rito</div>
+                <div class="comp-field-value" id="r-rito">—</div>
+              </div>
+              <div class="comp-field">
+                <div class="comp-field-label">Fundamento legal</div>
+                <div class="comp-field-value" id="r-fundamentacao">—</div>
+              </div>
+              <div class="comp-field comp-regra">
+                <div class="comp-field-label">Regra aplicada</div>
+                <div class="comp-field-value" id="r-regra">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">📚 Fundamentação de mérito (fontes verificadas)</div>
+            <div id="citacoes-merito"></div>
+          </div>
+
+          <div class="card">
+            <div class="peticao-header">
+              <h3>Minuta da petição</h3>
+              <button class="btn btn-ghost" id="btn-copiar-peticao">📋 Copiar petição</button>
+            </div>
+            <div class="alert alert-warning" style="margin-bottom:0;margin-top:8px;">
+              ⚠️ Este é um rascunho. Revise integralmente antes de protocolar.
+            </div>
+            <div class="peticao-box" id="peticao-gerada"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ASSISTENTE IA ── -->
+      <div id="secao-ia" class="secao">
+        <div class="page-header">
+          <h1>Assistente Jurídico</h1>
+          <p>Pesquisa de jurisprudência com busca real — só cita fontes oficiais confirmadas.</p>
+        </div>
+
+        <div class="alert alert-info">
+          ℹ️ <div>As citações vêm de busca real via Gemini + Google Search. O selo <strong>Verificado</strong> só aparece quando a fonte é oficial (.jus.br) e veio de uma busca confirmada.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🔍 Nova pesquisa</div>
+          <div class="ia-search">
+            <textarea id="pergunta" placeholder="Ex: dano moral por negativação indevida após pagamento"></textarea>
+            <button id="btn-buscar" class="btn btn-primary">Buscar</button>
+          </div>
+          <p id="status-msg-ia" class="status-msg"></p>
+        </div>
+
+        <div id="resultados-ia"></div>
+      </div>
+
+    </main>
   </div>
 </div>
 
@@ -247,28 +959,29 @@
   };
 
   const URL_FUNCAO_BUSCA_IA = "https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app";
-  const URL_FUNCAO_PETICAO = "https://gerar-peticao-702032107490.southamerica-east1.run.app";
+  const URL_FUNCAO_PETICAO  = "https://gerar-peticao-702032107490.southamerica-east1.run.app";
 
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db  = getFirestore(app);
   const auth = getAuth(app);
   const processosRef = collection(db, "processos");
 
   let listenerProcessosAtivo = null;
 
-  // ---------- LOGIN / NAVEGAÇÃO ----------
-  document.getElementById("form-login").addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-    const loginMsg = document.getElementById("login-msg");
+  // ── LOGIN ──
+  document.getElementById("form-login").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById("login-msg");
+    msg.textContent = "Entrando...";
+    msg.style.color = "var(--text-dim)";
     try {
-      await signInWithEmailAndPassword(
-        auth,
+      await signInWithEmailAndPassword(auth,
         document.getElementById("login-email").value,
         document.getElementById("login-senha").value
       );
-    } catch (erro) {
-      loginMsg.textContent = "Erro: " + erro.code;
-      loginMsg.style.color = "red";
+    } catch (err) {
+      msg.textContent = "Erro: " + err.code;
+      msg.style.color = "var(--danger)";
     }
   });
 
@@ -279,66 +992,69 @@
       document.getElementById("login").style.display = "none";
       document.getElementById("app").style.display = "block";
       document.getElementById("usuario-logado").textContent = usuario.email;
+      const inicial = usuario.email[0].toUpperCase();
+      document.getElementById("usuario-avatar").textContent = inicial;
       escutarProcessosDoUsuario(usuario.uid);
     } else {
-      document.getElementById("login").style.display = "block";
+      document.getElementById("login").style.display = "flex";
       document.getElementById("app").style.display = "none";
       if (listenerProcessosAtivo) listenerProcessosAtivo();
     }
   });
 
+  // ── NAVEGAÇÃO ──
   function mostrarSecao(nome) {
-    document.getElementById("secao-processos").classList.toggle("ativa", nome === "processos");
-    document.getElementById("secao-peticao").classList.toggle("ativa", nome === "peticao");
-    document.getElementById("secao-ia").classList.toggle("ativa", nome === "ia");
+    ["processos","peticao","ia"].forEach(s => {
+      document.getElementById("secao-" + s).classList.toggle("ativa", s === nome);
+      document.getElementById("btn-nav-" + (s === "ia" ? "ia" : s)).classList.toggle("ativo", s === nome);
+    });
     document.getElementById("btn-nav-processos").classList.toggle("ativo", nome === "processos");
     document.getElementById("btn-nav-peticao").classList.toggle("ativo", nome === "peticao");
     document.getElementById("btn-nav-ia").classList.toggle("ativo", nome === "ia");
   }
-  document.getElementById("btn-nav-processos").addEventListener("click", () => mostrarSecao("processos"));
-  document.getElementById("btn-nav-peticao").addEventListener("click", () => mostrarSecao("peticao"));
-  document.getElementById("btn-nav-ia").addEventListener("click", () => mostrarSecao("ia"));
 
-  // ---------- SEÇÃO PROCESSOS ----------
-  document.getElementById("form-processo").addEventListener("submit", async (evento) => {
-    evento.preventDefault();
+  document.getElementById("btn-nav-processos").addEventListener("click", () => mostrarSecao("processos"));
+  document.getElementById("btn-nav-peticao").addEventListener("click",   () => mostrarSecao("peticao"));
+  document.getElementById("btn-nav-ia").addEventListener("click",        () => mostrarSecao("ia"));
+
+  // ── PROCESSOS ──
+  document.getElementById("form-processo").addEventListener("submit", async (e) => {
+    e.preventDefault();
     const statusMsg = document.getElementById("status-msg-processos");
     const usuario = auth.currentUser;
-
     try {
       await addDoc(processosRef, {
-        numero_cnj: document.getElementById("numero_cnj").value,
-        classe_nome: document.getElementById("classe_nome").value,
-        assunto_nome: document.getElementById("assunto_nome").value,
-        tribunal: document.getElementById("tribunal").value,
-        vara: document.getElementById("vara").value,
-        comarca: document.getElementById("comarca").value,
-        instancia: document.getElementById("instancia").value,
-        polo_ativo: document.getElementById("polo_ativo").value.split(",").map(s => s.trim()).filter(Boolean),
-        polo_passivo: document.getElementById("polo_passivo").value.split(",").map(s => s.trim()).filter(Boolean),
-        fase: document.getElementById("fase").value,
-        status: "ativo",
-        data_distribuicao: document.getElementById("data_distribuicao").value || null,
+        numero_cnj:              document.getElementById("numero_cnj").value,
+        classe_nome:             document.getElementById("classe_nome").value,
+        assunto_nome:            document.getElementById("assunto_nome").value,
+        tribunal:                document.getElementById("tribunal").value,
+        vara:                    document.getElementById("vara").value,
+        comarca:                 document.getElementById("comarca").value,
+        instancia:               document.getElementById("instancia").value,
+        polo_ativo:              document.getElementById("polo_ativo").value.split(",").map(s => s.trim()).filter(Boolean),
+        polo_passivo:            document.getElementById("polo_passivo").value.split(",").map(s => s.trim()).filter(Boolean),
+        fase:                    document.getElementById("fase").value,
+        status:                  "ativo",
+        data_distribuicao:       document.getElementById("data_distribuicao").value || null,
         advogado_responsavel_id: usuario.uid,
-        criado_em: serverTimestamp(),
+        criado_em:               serverTimestamp(),
       });
-
-      statusMsg.textContent = "Processo salvo com sucesso.";
-      statusMsg.style.color = "green";
+      statusMsg.textContent = "✓ Processo salvo com sucesso.";
+      statusMsg.style.color = "var(--success)";
       document.getElementById("form-processo").reset();
-    } catch (erro) {
-      console.error("Erro ao salvar processo:", erro);
-      statusMsg.textContent = "Erro ao salvar. Veja o console do navegador.";
-      statusMsg.style.color = "red";
+    } catch (err) {
+      console.error(err);
+      statusMsg.textContent = "Erro ao salvar. Veja o console.";
+      statusMsg.style.color = "var(--danger)";
     }
   });
 
   function escutarProcessosDoUsuario(uid) {
-    const consultaDoUsuario = query(processosRef, where("advogado_responsavel_id", "==", uid));
-    listenerProcessosAtivo = onSnapshot(consultaDoUsuario, (snapshot) => {
+    const q = query(processosRef, where("advogado_responsavel_id", "==", uid));
+    listenerProcessosAtivo = onSnapshot(q, (snapshot) => {
       const lista = document.getElementById("lista-processos");
       if (snapshot.empty) {
-        lista.textContent = "Nenhum processo cadastrado ainda.";
+        lista.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>Nenhum processo cadastrado ainda.</p></div>`;
         return;
       }
       lista.innerHTML = "";
@@ -346,38 +1062,45 @@
         const p = doc.data();
         const item = document.createElement("div");
         item.className = "processo-item";
-        item.innerHTML = `<strong>${p.numero_cnj}</strong> — ${p.classe_nome}<br>
-          ${p.tribunal} · ${p.fase} · status: ${p.status}`;
+        item.innerHTML = `
+          <div>
+            <div class="processo-cnj">${p.numero_cnj}</div>
+            <div class="processo-info">${p.classe_nome} · ${p.tribunal}${p.vara ? " · " + p.vara : ""}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-fase">${p.fase}</span>
+            <span class="badge badge-ok">ativo</span>
+          </div>`;
         lista.appendChild(item);
       });
     });
   }
 
-  // ---------- SEÇÃO NOVA PETIÇÃO ----------
-  document.getElementById("form-peticao").addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-    const statusMsg = document.getElementById("status-msg-peticao");
+  // ── PETIÇÃO ──
+  document.getElementById("form-peticao").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusMsg   = document.getElementById("status-msg-peticao");
     const resultadoDiv = document.getElementById("resultado-peticao");
-    const btn = document.getElementById("btn-gerar-peticao");
+    const btn          = document.getElementById("btn-gerar-peticao");
 
     const dadosCaso = {
-      autorNome: document.getElementById("peticao_autor_nome").value.trim(),
-      autorCpf: document.getElementById("peticao_autor_cpf").value.trim(),
-      reuNome: document.getElementById("peticao_reu_nome").value.trim(),
-      reuCpfCnpj: document.getElementById("peticao_reu_cpf_cnpj").value.trim(),
-      enderecoReu: document.getElementById("peticao_endereco").value.trim(),
-      natureza: document.getElementById("peticao_natureza").value.trim(),
-      valorCausa: parseFloat(document.getElementById("peticao_valor").value) || 0,
-      descricao: document.getElementById("peticao_descricao").value.trim(),
+      autorNome:       document.getElementById("peticao_autor_nome").value.trim(),
+      autorCpf:        document.getElementById("peticao_autor_cpf").value.trim(),
+      reuNome:         document.getElementById("peticao_reu_nome").value.trim(),
+      reuCpfCnpj:      document.getElementById("peticao_reu_cpf_cnpj").value.trim(),
+      enderecoReu:     document.getElementById("peticao_endereco").value.trim(),
+      natureza:        document.getElementById("peticao_natureza").value.trim(),
+      valorCausa:      parseFloat(document.getElementById("peticao_valor").value) || 0,
+      descricao:       document.getElementById("peticao_descricao").value.trim(),
       possuiEntePublico: document.getElementById("peticao_ente_publico").checked,
-      envolveMenor: document.getElementById("peticao_menor").checked,
-      envolveIncapaz: document.getElementById("peticao_incapaz").checked,
-      urgente: document.getElementById("peticao_urgente").checked,
+      envolveMenor:    document.getElementById("peticao_menor").checked,
+      envolveIncapaz:  document.getElementById("peticao_incapaz").checked,
+      urgente:         document.getElementById("peticao_urgente").checked,
     };
 
     resultadoDiv.style.display = "none";
-    statusMsg.textContent = "Gerando rascunho (isso pode levar alguns segundos, por causa da busca de jurisprudência)...";
-    statusMsg.style.color = "#2952cc";
+    statusMsg.innerHTML = `<span class="spinner"></span> Gerando rascunho — buscando jurisprudência, pode levar alguns segundos...`;
+    statusMsg.style.color = "var(--text-dim)";
     btn.disabled = true;
 
     try {
@@ -390,43 +1113,44 @@
 
       if (!resposta.ok) {
         statusMsg.textContent = "Erro: " + (dados.erro || "Falha ao gerar petição");
-        statusMsg.style.color = "red";
+        statusMsg.style.color = "var(--danger)";
         return;
       }
 
-      document.getElementById("r-vara").textContent = dados.decisao_competencia.vara;
-      document.getElementById("r-tribunal").textContent = dados.decisao_competencia.tribunal;
-      document.getElementById("r-rito").textContent = dados.decisao_competencia.rito;
+      document.getElementById("r-vara").textContent          = dados.decisao_competencia.vara;
+      document.getElementById("r-tribunal").textContent      = dados.decisao_competencia.tribunal;
+      document.getElementById("r-rito").textContent          = dados.decisao_competencia.rito;
       document.getElementById("r-fundamentacao").textContent = dados.decisao_competencia.fundamentacao_legal;
-      document.getElementById("r-regra").textContent = dados.decisao_competencia.regra_aplicada;
+      document.getElementById("r-regra").textContent         = dados.decisao_competencia.regra_aplicada;
 
       const citacoesDiv = document.getElementById("citacoes-merito");
       citacoesDiv.innerHTML = "";
       if (dados.citacoes_merito.length === 0) {
-        citacoesDiv.innerHTML = `<p style="color:#721c24;">Nenhuma fonte oficial verificada foi encontrada — a fundamentação de mérito precisa ser pesquisada manualmente.</p>`;
+        citacoesDiv.innerHTML = `<div class="alert alert-warning">⚠️ Nenhuma fonte oficial verificada foi encontrada — a fundamentação de mérito precisa ser pesquisada manualmente.</div>`;
       } else {
         dados.citacoes_merito.forEach((c) => {
           const card = document.createElement("div");
           card.className = "citacao-card";
           card.innerHTML = `
-            <span class="badge badge-verificado">Verificado</span>
-            <p>${c.texto_citado}</p>
-            <p><strong>${c.tribunal}</strong></p>
-            <p><a href="${c.link_fonte}" target="_blank">Ver fonte original</a></p>
-          `;
+            <span class="badge badge-ok">✓ Verificado</span>
+            <p class="citacao-texto">${c.texto_citado}</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+              <span class="citacao-tribunal">${c.tribunal}</span>
+              <a href="${c.link_fonte}" target="_blank">Ver fonte →</a>
+            </div>`;
           citacoesDiv.appendChild(card);
         });
       }
 
       document.getElementById("peticao-gerada").textContent = dados.peticao;
       resultadoDiv.style.display = "block";
-      statusMsg.textContent = "Rascunho gerado. Revise tudo antes de usar.";
-      statusMsg.style.color = "green";
+      statusMsg.textContent = "✓ Rascunho gerado. Revise tudo antes de usar.";
+      statusMsg.style.color = "var(--success)";
       resultadoDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-    } catch (erro) {
-      console.error("Erro ao gerar petição:", erro);
+    } catch (err) {
+      console.error(err);
       statusMsg.textContent = "Erro ao gerar. Veja o console do navegador.";
-      statusMsg.style.color = "red";
+      statusMsg.style.color = "var(--danger)";
     } finally {
       btn.disabled = false;
     }
@@ -437,27 +1161,27 @@
     try {
       await navigator.clipboard.writeText(texto);
       const btn = document.getElementById("btn-copiar-peticao");
-      btn.textContent = "Copiado!";
-      setTimeout(() => { btn.textContent = "Copiar petição"; }, 2000);
-    } catch (erro) {
+      btn.textContent = "✓ Copiado!";
+      setTimeout(() => { btn.textContent = "📋 Copiar petição"; }, 2000);
+    } catch {
       alert("Não foi possível copiar automaticamente. Selecione o texto manualmente.");
     }
   });
 
-  // ---------- SEÇÃO ASSISTENTE JURÍDICO ----------
+  // ── ASSISTENTE IA ──
   document.getElementById("btn-buscar").addEventListener("click", async () => {
-    const pergunta = document.getElementById("pergunta").value.trim();
+    const pergunta  = document.getElementById("pergunta").value.trim();
     const statusMsg = document.getElementById("status-msg-ia");
     const resultados = document.getElementById("resultados-ia");
 
     if (!pergunta) {
       statusMsg.textContent = "Digite uma pergunta primeiro.";
-      statusMsg.style.color = "red";
+      statusMsg.style.color = "var(--danger)";
       return;
     }
 
-    statusMsg.textContent = "Buscando...";
-    statusMsg.style.color = "black";
+    statusMsg.innerHTML = `<span class="spinner"></span> Buscando jurisprudência...`;
+    statusMsg.style.color = "var(--text-dim)";
     resultados.innerHTML = "";
 
     try {
@@ -466,28 +1190,33 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pergunta, advogado_id: auth.currentUser.uid }),
       });
-
       const dados = await resposta.json();
       statusMsg.textContent = "";
+
+      if ((dados.citacoes || []).length === 0) {
+        resultados.innerHTML = `<div class="alert alert-warning">⚠️ Nenhuma fonte oficial verificada foi encontrada para essa pesquisa.</div>`;
+        return;
+      }
 
       (dados.citacoes || []).forEach((c) => {
         const card = document.createElement("div");
         card.className = "citacao-card";
         const badge = c.verificado
-          ? `<span class="badge badge-verificado">Verificado</span>`
-          : `<span class="badge badge-bloqueado">Não confirmado</span>`;
+          ? `<span class="badge badge-ok">✓ Verificado</span>`
+          : `<span class="badge badge-nok">⚠ Não confirmado</span>`;
         card.innerHTML = `
           ${badge}
-          <p>${c.texto_citado}</p>
-          <p><strong>${c.tribunal}</strong>${c.numero_processo_referenciado ? ` — Processo ${c.numero_processo_referenciado}` : ""}</p>
-          <p><a href="${c.link_fonte}" target="_blank">Ver fonte original</a></p>
-        `;
+          <p class="citacao-texto">${c.texto_citado}</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+            <span class="citacao-tribunal">${c.tribunal}${c.numero_processo_referenciado ? " · " + c.numero_processo_referenciado : ""}</span>
+            <a href="${c.link_fonte}" target="_blank">Ver fonte →</a>
+          </div>`;
         resultados.appendChild(card);
       });
-    } catch (erro) {
-      console.error(erro);
+    } catch (err) {
+      console.error(err);
       statusMsg.textContent = "Erro ao buscar. Veja o console do navegador.";
-      statusMsg.style.color = "red";
+      statusMsg.style.color = "var(--danger)";
     }
   });
 </script>
