@@ -86,18 +86,6 @@
     margin: 0;
     font-weight: normal;
   }
-
-  /* Spinner de carregamento sutil */
-  .loading-dots::after {
-    content: '...';
-    animation: dots 1.5s steps(4, end) infinite;
-  }
-  @keyframes dots {
-    0% { content: ''; }
-    25% { content: '.'; }
-    50% { content: '..'; }
-    75% { content: '...'; }
-  }
 </style>
 </head>
 <body>
@@ -115,7 +103,7 @@
   <p id="login-msg"></p>
 </div>
 
-<!-- APP -->
+<!-- APP, depois do login -->
 <div id="app">
   <div id="barra-superior">
     <div id="menu-nav">
@@ -130,7 +118,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- SEÇÃO 1: MEUS PROCESSOS -->
+  <!-- SEÇÃO 1: MEUS PROCESSOS (JÁ EXISTENTE) -->
   <!-- ========================================== -->
   <div id="secao-processos" class="secao ativa">
     <h2>Meus Processos</h2>
@@ -188,13 +176,13 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- SEÇÃO 2: NOVA PETIÇÃO (SEM MENÇÃO A IA) -->
+  <!-- SEÇÃO 2: NOVA PETIÇÃO (NOVO) -->
   <!-- ========================================== -->
   <div id="secao-peticao" class="secao">
     <h2>📄 Nova Petição Inicial</h2>
     
     <div class="aviso">
-      ℹ️ Descreva o caso abaixo. O sistema vai analisar a <strong>competência</strong> (vara, tribunal, rito) 
+      ℹ️ Descreva o caso abaixo. A IA vai analisar a <strong>competência</strong> (vara, tribunal, rito) 
       e gerar uma <strong>minuta de petição inicial</strong> pronta para revisão.
     </div>
 
@@ -260,10 +248,10 @@
         <div class="campo"><strong>Fundação legal:</strong> <span id="r-fundamentacao"></span></div>
         <div class="campo"><strong>Observações:</strong> <span id="r-observacoes"></span></div>
         <div class="campo">
-          <strong>Confiabilidade:</strong> 
+          <strong>Confiança:</strong> 
           <span id="r-confianca" class="badge badge-alta"></span>
         </div>
-        <div class="campo"><strong>Critérios aplicados:</strong> <span id="r-regras"></span></div>
+        <div class="campo"><strong>Regras aplicadas:</strong> <span id="r-regras"></span></div>
       </div>
 
       <h3>📄 Minuta da Petição Inicial</h3>
@@ -273,19 +261,20 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- SEÇÃO 3: JURISPRUDÊNCIA -->
+  <!-- SEÇÃO 3: JURISPRUDÊNCIA (JÁ EXISTENTE) -->
   <!-- ========================================== -->
   <div id="secao-ia" class="secao">
-    <h2>🔍 Pesquisa de Jurisprudência</h2>
+    <h2>🔍 Assistente Jurídico - Jurisprudência</h2>
 
     <div class="aviso">
-      ℹ️ A pesquisa consulta fontes oficiais (.jus.br) e verifica a autenticidade 
-      de cada citação encontrada.
+      ℹ️ As citações abaixo vêm de busca real (Gemini + Google Search). O selo
+      "Verificado" só aparece quando a fonte é oficial (.jus.br) e veio de uma
+      busca de verdade — qualquer outra coisa fica marcada como "Não confirmado".
     </div>
 
     <label for="pergunta">Sobre o que você quer pesquisar jurisprudência?</label>
     <textarea id="pergunta" placeholder="Ex: dano moral por negativação indevida após pagamento"></textarea>
-    <button id="btn-buscar">🔍 Pesquisar jurisprudência</button>
+    <button id="btn-buscar">Buscar jurisprudência</button>
 
     <p id="status-msg-ia"></p>
     <div id="resultados-ia"></div>
@@ -351,7 +340,7 @@
     }
   });
 
-  // ---------- NAVEGAÇÃO ----------
+  // ---------- NAVEGAÇÃO ENTRE SEÇÕES ----------
   function mostrarSecao(nome) {
     document.getElementById("secao-processos").classList.toggle("ativa", nome === "processos");
     document.getElementById("secao-peticao").classList.toggle("ativa", nome === "peticao");
@@ -364,7 +353,7 @@
   document.getElementById("btn-nav-peticao").addEventListener("click", () => mostrarSecao("peticao"));
   document.getElementById("btn-nav-ia").addEventListener("click", () => mostrarSecao("ia"));
 
-  // ---------- SEÇÃO PROCESSOS ----------
+  // ---------- SEÇÃO PROCESSOS (JÁ EXISTENTE) ----------
   document.getElementById("form-processo").addEventListener("submit", async (evento) => {
     evento.preventDefault();
     const statusMsg = document.getElementById("status-msg-processos");
@@ -419,7 +408,7 @@
   }
 
   // ==========================================
-  // SEÇÃO NOVA PETIÇÃO (SEM MENÇÃO A IA)
+  // SEÇÃO NOVA PETIÇÃO (NOVO)
   // ==========================================
   document.getElementById("form-peticao").addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -449,17 +438,17 @@
       tribunalPreferencial: document.getElementById("peticao_tribunal").value.trim(),
     };
 
-    // Validação
+    // Validação básica
     if (!dadosCaso.descricao || !dadosCaso.natureza || !dadosCaso.partes || dadosCaso.valorCausa <= 0) {
-      statusMsg.textContent = "Preencha todos os campos obrigatórios.";
+      statusMsg.textContent = "Preencha todos os campos obrigatórios (descrição, natureza, partes e valor).";
       statusMsg.style.color = "red";
       return;
     }
 
     // Esconde resultado anterior
     resultadoDiv.style.display = "none";
-    statusMsg.textContent = "⏳ Processando os dados do caso...";
-    statusMsg.style.color = "#2952cc";
+    statusMsg.textContent = "⏳ Analisando o caso com IA...";
+    statusMsg.style.color = "black";
     btnAnalisar.disabled = true;
 
     try {
@@ -489,27 +478,22 @@
       document.getElementById("r-fundamentacao").textContent = dados.decisao.fundamentacao || "N/A";
       document.getElementById("r-observacoes").textContent = dados.decisao.observacoes || "Nenhuma";
 
-      // Confiabilidade (sem mencionar IA)
+      // Confiança
       const confiancaSpan = document.getElementById("r-confianca");
       const nivel = dados.confianca || "baixa";
-      const labels = {
-        alta: "Alta",
-        media: "Média",
-        baixa: "Baixa"
-      };
-      confiancaSpan.textContent = labels[nivel] || "Média";
+      confiancaSpan.textContent = nivel.toUpperCase();
       confiancaSpan.className = `badge badge-${nivel}`;
 
-      // Critérios aplicados
+      // Regras aplicadas
       const regras = dados.detalhes?.regras_aplicadas || [];
-      document.getElementById("r-regras").textContent = regras.length > 0 ? regras.join("; ") : "Análise padrão aplicada";
+      document.getElementById("r-regras").textContent = regras.length > 0 ? regras.join("; ") : "Nenhuma regra especial aplicada";
 
       // Petição gerada
       document.getElementById("peticao-gerada").textContent = dados.peticao || "Petição não gerada.";
 
       // Mostra o resultado
       resultadoDiv.style.display = "block";
-      statusMsg.textContent = "✅ Análise concluída!";
+      statusMsg.textContent = "✅ Análise concluída com sucesso!";
       statusMsg.style.color = "green";
 
       // Rola até o resultado
@@ -517,7 +501,7 @@
 
     } catch (erro) {
       console.error("Erro na análise:", erro);
-      statusMsg.textContent = "Erro ao processar. Veja o console.";
+      statusMsg.textContent = "Erro ao analisar. Veja o console.";
       statusMsg.style.color = "red";
     } finally {
       btnAnalisar.disabled = false;
@@ -538,7 +522,7 @@
     }
   });
 
-  // ---------- SEÇÃO JURISPRUDÊNCIA ----------
+  // ---------- SEÇÃO JURISPRUDÊNCIA (JÁ EXISTENTE) ----------
   document.getElementById("btn-buscar").addEventListener("click", async () => {
     const pergunta = document.getElementById("pergunta").value.trim();
     const statusMsg = document.getElementById("status-msg-ia");
@@ -550,8 +534,8 @@
       return;
     }
 
-    statusMsg.textContent = "🔍 Pesquisando...";
-    statusMsg.style.color = "#2952cc";
+    statusMsg.textContent = "Buscando...";
+    statusMsg.style.color = "black";
     resultados.innerHTML = "";
 
     try {
@@ -568,23 +552,19 @@
         const card = document.createElement("div");
         card.className = "citacao-card";
         const badge = c.verificado
-          ? `<span class="badge badge-verificado">✅ Fonte verificada</span>`
-          : `<span class="badge badge-bloqueado">⚠️ Fonte não confirmada</span>`;
+          ? `<span class="badge badge-verificado">Verificado</span>`
+          : `<span class="badge badge-bloqueado">Não confirmado</span>`;
         card.innerHTML = `
           ${badge}
           <p>${c.texto_citado}</p>
           <p><strong>${c.tribunal}</strong>${c.numero_processo_referenciado ? ` — Processo ${c.numero_processo_referenciado}` : ""}</p>
-          <p><a href="${c.link_fonte}" target="_blank">🔗 Ver fonte original</a></p>
+          <p><a href="${c.link_fonte}" target="_blank">Ver fonte original</a></p>
         `;
         resultados.appendChild(card);
       });
-
-      if (dados.citacoes?.length === 0) {
-        resultados.innerHTML = `<p style="color: #666;">Nenhuma citação encontrada para esta pesquisa.</p>`;
-      }
     } catch (erro) {
       console.error(erro);
-      statusMsg.textContent = "Erro ao pesquisar. Veja o console do navegador.";
+      statusMsg.textContent = "Erro ao buscar. Veja o console do navegador.";
       statusMsg.style.color = "red";
     }
   });
