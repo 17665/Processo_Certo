@@ -299,7 +299,8 @@
     appId: "1:702032107490:web:73d37f4a608f60bacb8bbb",
   };
 
-  const URL_FUNCAO_BUSCA_IA = "https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app";
+  // URLS CORRIGIDAS - AGORA COM O CAMINHO DA FUNÇÃO
+  const URL_FUNCAO_BUSCA_IA = "https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app/buscarJurisprudencia";
   const URL_FUNCAO_ANALISE = "https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app/analisarCompetencia";
 
   const app = initializeApp(firebaseConfig);
@@ -353,7 +354,7 @@
   document.getElementById("btn-nav-peticao").addEventListener("click", () => mostrarSecao("peticao"));
   document.getElementById("btn-nav-ia").addEventListener("click", () => mostrarSecao("ia"));
 
-  // ---------- SEÇÃO PROCESSOS (JÁ EXISTENTE) ----------
+  // ---------- SEÇÃO PROCESSOS ----------
   document.getElementById("form-processo").addEventListener("submit", async (evento) => {
     evento.preventDefault();
     const statusMsg = document.getElementById("status-msg-processos");
@@ -408,7 +409,7 @@
   }
 
   // ==========================================
-  // SEÇÃO NOVA PETIÇÃO (NOVO)
+  // SEÇÃO NOVA PETIÇÃO
   // ==========================================
   document.getElementById("form-peticao").addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -423,7 +424,6 @@
       return;
     }
 
-    // Coleta os dados do formulário
     const dadosCaso = {
       natureza: document.getElementById("peticao_natureza").value.trim(),
       partes: document.getElementById("peticao_partes").value.trim(),
@@ -438,16 +438,14 @@
       tribunalPreferencial: document.getElementById("peticao_tribunal").value.trim(),
     };
 
-    // Validação básica
     if (!dadosCaso.descricao || !dadosCaso.natureza || !dadosCaso.partes || dadosCaso.valorCausa <= 0) {
-      statusMsg.textContent = "Preencha todos os campos obrigatórios (descrição, natureza, partes e valor).";
+      statusMsg.textContent = "Preencha todos os campos obrigatórios.";
       statusMsg.style.color = "red";
       return;
     }
 
-    // Esconde resultado anterior
     resultadoDiv.style.display = "none";
-    statusMsg.textContent = "⏳ Analisando o caso com IA...";
+    statusMsg.textContent = "⏳ Analisando o caso...";
     statusMsg.style.color = "black";
     btnAnalisar.disabled = true;
 
@@ -470,7 +468,6 @@
         return;
       }
 
-      // Preenche o resultado
       document.getElementById("r-vara").textContent = dados.decisao.vara || "N/A";
       document.getElementById("r-tribunal").textContent = dados.decisao.tribunal || "N/A";
       document.getElementById("r-comarca").textContent = dados.decisao.comarca || "N/A";
@@ -478,25 +475,19 @@
       document.getElementById("r-fundamentacao").textContent = dados.decisao.fundamentacao || "N/A";
       document.getElementById("r-observacoes").textContent = dados.decisao.observacoes || "Nenhuma";
 
-      // Confiança
       const confiancaSpan = document.getElementById("r-confianca");
       const nivel = dados.confianca || "baixa";
       confiancaSpan.textContent = nivel.toUpperCase();
       confiancaSpan.className = `badge badge-${nivel}`;
 
-      // Regras aplicadas
       const regras = dados.detalhes?.regras_aplicadas || [];
       document.getElementById("r-regras").textContent = regras.length > 0 ? regras.join("; ") : "Nenhuma regra especial aplicada";
 
-      // Petição gerada
       document.getElementById("peticao-gerada").textContent = dados.peticao || "Petição não gerada.";
 
-      // Mostra o resultado
       resultadoDiv.style.display = "block";
       statusMsg.textContent = "✅ Análise concluída com sucesso!";
       statusMsg.style.color = "green";
-
-      // Rola até o resultado
       resultadoDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     } catch (erro) {
@@ -522,7 +513,7 @@
     }
   });
 
-  // ---------- SEÇÃO JURISPRUDÊNCIA (JÁ EXISTENTE) ----------
+  // ---------- SEÇÃO JURISPRUDÊNCIA ----------
   document.getElementById("btn-buscar").addEventListener("click", async () => {
     const pergunta = document.getElementById("pergunta").value.trim();
     const statusMsg = document.getElementById("status-msg-ia");
