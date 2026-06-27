@@ -393,8 +393,64 @@ select option{background:var(--surface2);color:var(--text)}
       <button type="submit" class="btn btn-p btn-full">Entrar</button>
     </form>
     <p id="login-msg" class="status-msg"></p>
+    <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-dim)">
+      Não tem conta? <a href="#" id="link-mostrar-cadastro" style="color:var(--accent)">Criar conta</a>
+    </p>
   </div>
 </div>
+
+<!-- CADASTRO (novo advogado) -->
+<div id="cadastro" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">⚖️</div>
+      <div>
+        <div class="logo-name">Legifer</div>
+        <div class="logo-sub">Criar nova conta</div>
+      </div>
+    </div>
+    <h2 style="font-size:15px;font-weight:600;margin-bottom:18px;">Criar conta de advogado(a)</h2>
+    <form id="form-cadastro">
+      <div class="field">
+        <label for="cad-nome">Nome completo</label>
+        <input id="cad-nome" required placeholder="Seu nome completo"/>
+      </div>
+      <div class="field">
+        <label for="cad-oab">OAB (número e UF)</label>
+        <input id="cad-oab" placeholder="Ex: 123456/SP"/>
+      </div>
+      <div class="field">
+        <label for="cad-email">E-mail</label>
+        <input id="cad-email" type="email" required placeholder="advogado@escritorio.com.br"/>
+      </div>
+      <div class="field">
+        <label for="cad-senha">Senha (mínimo 6 caracteres)</label>
+        <input id="cad-senha" type="password" required placeholder="••••••••"/>
+      </div>
+      <button type="submit" class="btn btn-p btn-full">Criar conta</button>
+    </form>
+    <p id="cadastro-msg" class="status-msg"></p>
+    <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-dim)">
+      Já tem conta? <a href="#" id="link-mostrar-login" style="color:var(--accent)">Entrar</a>
+    </p>
+  </div>
+</div>
+
+<!-- BLOQUEADO (conta existe, mas acesso suspenso) -->
+<div id="bloqueado" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🔒</div>
+      <div>
+        <div class="logo-name">Acesso suspenso</div>
+        <div class="logo-sub">Legifer</div>
+      </div>
+    </div>
+    <div class="alert alert-e">⚠️ <div>Sua conta está temporariamente sem acesso (geralmente por pendência de pagamento da assinatura). Entre em contato com o suporte para reativar.</div></div>
+    <button class="btn btn-g btn-full" id="btn-sair-bloqueado">Sair</button>
+  </div>
+</div>
+
 
 <!-- APP -->
 <div id="app">
@@ -620,8 +676,8 @@ setTema(ts);
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import{getFirestore,collection,addDoc,query,where,onSnapshot,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import{getFirestore,collection,addDoc,query,where,onSnapshot,serverTimestamp,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 const cfg={
   apiKey:"AIzaSyAmieTrhDtNmyxw3X-2ByiI3siPAMbXf5w",
@@ -652,17 +708,73 @@ document.getElementById('form-login').addEventListener('submit',async e=>{
   }catch(err){msg.textContent='Erro: '+err.code;msg.style.color='var(--danger)';}
 });
 
+/* ALTERNÂNCIA LOGIN <-> CADASTRO */
+document.getElementById('link-mostrar-cadastro').addEventListener('click',e=>{
+  e.preventDefault();
+  document.getElementById('login').style.display='none';
+  document.getElementById('cadastro').style.display='flex';
+});
+document.getElementById('link-mostrar-login').addEventListener('click',e=>{
+  e.preventDefault();
+  document.getElementById('cadastro').style.display='none';
+  document.getElementById('login').style.display='flex';
+});
+
+/* CADASTRO DE NOVO ADVOGADO */
+document.getElementById('form-cadastro').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const msg=document.getElementById('cadastro-msg');
+  msg.textContent='Criando conta...';msg.style.color='var(--text-dim)';
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,
+      document.getElementById('cad-email').value,
+      document.getElementById('cad-senha').value);
+    // Cria o perfil do advogado no Firestore — status "ativo" por padrão.
+    // Pra bloquear acesso depois (ex: assinatura em atraso), basta trocar
+    // este campo "status" para "bloqueado" direto no Firestore.
+    await setDoc(doc(db,'advogados',cred.user.uid),{
+      nome:document.getElementById('cad-nome').value.trim(),
+      oab:document.getElementById('cad-oab').value.trim(),
+      email:document.getElementById('cad-email').value.trim(),
+      status:'ativo',
+      criado_em:serverTimestamp()
+    });
+  }catch(err){msg.textContent='Erro: '+err.code;msg.style.color='var(--danger)';}
+});
+
 document.getElementById('btn-sair1').addEventListener('click',()=>signOut(auth));
 document.getElementById('btn-sair2').addEventListener('click',()=>signOut(auth));
+document.getElementById('btn-sair-bloqueado').addEventListener('click',()=>signOut(auth));
 
-onAuthStateChanged(auth,u=>{
+onAuthStateChanged(auth,async u=>{
   if(u){
+    // Verifica o status da conta antes de liberar qualquer acesso ao app.
+    // Isso é o que permite "descredenciar" um advogado: troca o campo
+    // "status" do documento dele em advogados/{uid} para "bloqueado".
+    let statusConta='ativo';
+    try{
+      const perfil=await getDoc(doc(db,'advogados',u.uid));
+      statusConta=perfil.exists()?(perfil.data().status||'ativo'):'ativo';
+    }catch(err){console.error('Erro ao checar status da conta:',err);}
+
     document.getElementById('login').style.display='none';
+    document.getElementById('cadastro').style.display='none';
+
+    if(statusConta!=='ativo'){
+      document.getElementById('app').style.display='none';
+      document.getElementById('bloqueado').style.display='flex';
+      if(unsubProc)unsubProc();
+      return;
+    }
+
+    document.getElementById('bloqueado').style.display='none';
     document.getElementById('app').style.display='block';
     ['av1','av2','av3'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.email[0].toUpperCase();});
     ['em1','em2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.email;});
     escutarProc(u.uid);
   }else{
+    document.getElementById('bloqueado').style.display='none';
+    document.getElementById('cadastro').style.display='none';
     document.getElementById('login').style.display='flex';
     document.getElementById('app').style.display='none';
     if(unsubProc)unsubProc();
