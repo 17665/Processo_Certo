@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ProcessoCerto</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
 <style>
   /* ── TOKENS ── */
   :root {
@@ -45,7 +45,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(ellipse at 50% 0%, #1a2f50 0%, var(--bg) 70%);
+    background: var(--login-gradient, radial-gradient(ellipse at 50% 0%, #1a2f50 0%, #0d1117 70%));
   }
 
   .login-card {
@@ -621,9 +621,101 @@
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
   }
+
+/* ══ TEMAS EXTRAS ══ */
+[data-theme="claro"] {
+  --bg:#ffffff;--surface:#f6f8fa;--surface2:#eaeef2;--border:#d0d7de;
+  --accent:#0969da;--accent-dim:#cae8ff;--accent-glow:#0969da15;
+  --success:#1a7f37;--success-bg:#dafbe1;--warning:#9a6700;--warning-bg:#fff8c5;
+  --danger:#cf222e;--danger-bg:#ffebe9;--text:#1f2328;--text-dim:#636c76;--text-muted:#9198a1;
+  --login-gradient:radial-gradient(ellipse at 50% 0%,#ddf4ff 0%,#ffffff 70%);
+}
+[data-theme="azul"] {
+  --bg:#0d1e35;--surface:#112747;--surface2:#1a3357;--border:#1e3d63;
+  --accent:#f0a500;--accent-dim:#7a5200;--accent-glow:#f0a50020;
+  --success:#10b981;--success-bg:#042f1e;--warning:#f59e0b;--warning-bg:#2a1a00;
+  --danger:#ef4444;--danger-bg:#2a0a0a;--text:#e8f0fe;--text-dim:#8aafd4;--text-muted:#3a5a7a;
+  --login-gradient:radial-gradient(ellipse at 50% 0%,#1a3357 0%,#0d1e35 70%);
+}
+[data-theme="moderno"] {
+  --bg:#080810;--surface:#0f0f1a;--surface2:#16162a;--border:#252540;
+  --accent:#7c3aed;--accent-dim:#3b1a7a;--accent-glow:#7c3aed20;
+  --success:#10b981;--success-bg:#042f1e;--warning:#f59e0b;--warning-bg:#2a1a00;
+  --danger:#ef4444;--danger-bg:#2a0a0a;--text:#e8e8ff;--text-dim:#8888bb;--text-muted:#444466;
+  --login-gradient:radial-gradient(ellipse at 50% 0%,#1e1040 0%,#080810 70%);
+}
+[data-theme="tradicional"] {
+  --bg:#faf7f2;--surface:#f0ebe0;--surface2:#e8e0d0;--border:#c8b898;
+  --accent:#7b3f00;--accent-dim:#f0ebe0;--accent-glow:#7b3f0015;
+  --success:#2d6a4f;--success-bg:#d8f3dc;--warning:#b5640a;--warning-bg:#fff3e0;
+  --danger:#9b2226;--danger-bg:#ffe0e0;--text:#2c1810;--text-dim:#6b4c30;--text-muted:#a08060;
+  --login-gradient:radial-gradient(ellipse at 50% 0%,#f0ebe0 0%,#faf7f2 70%);
+}
+[data-theme="verde"] {
+  --bg:#050d08;--surface:#091410;--surface2:#0f1f18;--border:#1a3328;
+  --accent:#22c55e;--accent-dim:#0a3318;--accent-glow:#22c55e18;
+  --success:#22c55e;--success-bg:#0a1f0f;--warning:#f59e0b;--warning-bg:#1a1000;
+  --danger:#ef4444;--danger-bg:#1a0505;--text:#e0f5e8;--text-dim:#6aaa80;--text-muted:#2a5540;
+  --login-gradient:radial-gradient(ellipse at 50% 0%,#0a1f0f 0%,#050d08 70%);
+}
+
+/* nav-item.ativo dinâmico por tema */
+.nav-item.ativo { background: var(--accent-glow) !important; color: var(--accent) !important; border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent) !important; }
+
+/* Seletor de tema */
+#tema-selector {
+  position: fixed; top: 12px; right: 12px; z-index: 9999;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 10px 5px 12px;
+  box-shadow: 0 4px 20px #00000040;
+}
+#tema-selector span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.tema-dot {
+  width: 18px; height: 18px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: transform .15s, border-color .15s; flex-shrink:0;
+}
+.tema-dot:hover { transform: scale(1.25); }
+.tema-dot.ativo { border-color: var(--text); }
+.dot-escuro     { background: #2f81f7; }
+.dot-claro      { background: #0969da; box-shadow: 0 0 0 1px #d0d7de; }
+.dot-azul       { background: #f0a500; }
+.dot-moderno    { background: #7c3aed; }
+.dot-tradicional{ background: #7b3f00; }
+.dot-verde      { background: #22c55e; }
+
+/* transição suave ao trocar tema */
+body { transition: background .25s, color .25s; }
+.sidebar, .card, .login-card { transition: background .25s, border-color .25s; }
+
+/* Fonte display para o tema Tradicional */
+[data-theme="tradicional"] .login-logo-name,
+[data-theme="tradicional"] .page-header h1,
+[data-theme="tradicional"] .sidebar-logo-text { font-family: 'Playfair Display', serif; }
 </style>
 </head>
-<body>
+<body data-theme="escuro">
+
+<!-- SELETOR DE TEMA -->
+<div id="tema-selector">
+  <span>Tema</span>
+  <div class="tema-dot dot-escuro ativo"       title="Escuro"           onclick="trocarTema('escuro')"></div>
+  <div class="tema-dot dot-claro"              title="Claro"            onclick="trocarTema('claro')"></div>
+  <div class="tema-dot dot-azul"               title="Azul Corporativo" onclick="trocarTema('azul')"></div>
+  <div class="tema-dot dot-moderno"            title="Moderno"          onclick="trocarTema('moderno')"></div>
+  <div class="tema-dot dot-tradicional"        title="Tradicional"      onclick="trocarTema('tradicional')"></div>
+  <div class="tema-dot dot-verde"              title="Verde Jurídico"   onclick="trocarTema('verde')"></div>
+</div>
+<script>
+  function trocarTema(tema) {
+    document.body.setAttribute('data-theme', tema);
+    localStorage.setItem('pc-tema', tema);
+    document.querySelectorAll('.tema-dot').forEach(d => d.classList.remove('ativo'));
+    document.querySelector('.dot-' + tema).classList.add('ativo');
+  }
+  const temaSalvo = localStorage.getItem('pc-tema') || 'escuro';
+  trocarTema(temaSalvo);
+</script>
 
 <!-- ═══════════════ LOGIN ═══════════════ -->
 <div id="login">
