@@ -394,49 +394,143 @@ select option{background:var(--surface2);color:var(--text)}
     </form>
     <p id="login-msg" class="status-msg"></p>
     <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-dim)">
-      Não tem conta? <a href="#" id="link-mostrar-cadastro" style="color:var(--accent)">Criar conta</a>
+      Não tem conta? <a href="#" id="link-mostrar-opcoes" style="color:var(--accent)">Criar conta</a>
     </p>
   </div>
 </div>
 
-<!-- CADASTRO (novo advogado) -->
-<div id="cadastro" style="display:none">
+<!-- OPÇÕES DE CADASTRO: criar escritório ou entrar com convite -->
+<div id="opcoes-cadastro" style="display:none">
   <div class="login-card">
     <div class="login-logo">
       <div class="logo-icon">⚖️</div>
       <div>
         <div class="logo-name">Legifer</div>
-        <div class="logo-sub">Criar nova conta</div>
+        <div class="logo-sub">Como você quer começar?</div>
       </div>
     </div>
-    <h2 style="font-size:15px;font-weight:600;margin-bottom:18px;">Criar conta de advogado(a)</h2>
-    <form id="form-cadastro">
-      <div class="field">
-        <label for="cad-nome">Nome completo</label>
-        <input id="cad-nome" required placeholder="Seu nome completo"/>
-      </div>
-      <div class="field">
-        <label for="cad-oab">OAB (número e UF)</label>
-        <input id="cad-oab" placeholder="Ex: 123456/SP"/>
-      </div>
-      <div class="field">
-        <label for="cad-email">E-mail</label>
-        <input id="cad-email" type="email" required placeholder="advogado@escritorio.com.br"/>
-      </div>
-      <div class="field">
-        <label for="cad-senha">Senha (mínimo 6 caracteres)</label>
-        <input id="cad-senha" type="password" required placeholder="••••••••"/>
-      </div>
-      <button type="submit" class="btn btn-p btn-full">Criar conta</button>
-    </form>
-    <p id="cadastro-msg" class="status-msg"></p>
-    <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-dim)">
-      Já tem conta? <a href="#" id="link-mostrar-login" style="color:var(--accent)">Entrar</a>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
+      <button class="btn btn-p btn-full" id="btn-ir-criar-escritorio" style="justify-content:flex-start;padding:14px 16px;flex-direction:column;align-items:flex-start;gap:3px;">
+        <span style="font-size:14px;">🏛️ Sou sócio(a) / quero criar um escritório</span>
+        <span style="font-size:11px;font-weight:400;opacity:.85;">Você escolhe o plano e convida sua equipe depois</span>
+      </button>
+      <button class="btn btn-g btn-full" id="btn-ir-convite" style="justify-content:flex-start;padding:14px 16px;flex-direction:column;align-items:flex-start;gap:3px;">
+        <span style="font-size:14px;">🔑 Tenho um código de convite</span>
+        <span style="font-size:11px;font-weight:400;opacity:.85;">Recebi de um sócio/admin de um escritório</span>
+      </button>
+    </div>
+    <p style="text-align:center;margin-top:16px;font-size:13px;color:var(--text-dim)">
+      Já tem conta? <a href="#" id="link-voltar-login-1" style="color:var(--accent)">Entrar</a>
     </p>
   </div>
 </div>
 
-<!-- BLOQUEADO (conta existe, mas acesso suspenso) -->
+<!-- CRIAR ESCRITÓRIO (fluxo do sócio/admin) -->
+<div id="cadastro-escritorio" style="display:none">
+  <div class="login-card" style="max-width:420px;">
+    <div class="login-logo">
+      <div class="logo-icon">🏛️</div>
+      <div>
+        <div class="logo-name">Legifer</div>
+        <div class="logo-sub">Criar escritório</div>
+      </div>
+    </div>
+    <form id="form-escritorio">
+      <div class="field">
+        <label for="esc-nome-pessoal">Seu nome completo</label>
+        <input id="esc-nome-pessoal" required placeholder="Seu nome"/>
+      </div>
+      <div class="field">
+        <label for="esc-email">E-mail</label>
+        <input id="esc-email" type="email" required placeholder="voce@escritorio.com.br"/>
+      </div>
+      <div class="field">
+        <label for="esc-senha">Senha (mínimo 6 caracteres)</label>
+        <input id="esc-senha" type="password" required placeholder="••••••••"/>
+      </div>
+      <hr class="divider" style="margin:16px 0;"/>
+      <div class="field">
+        <label for="esc-nome">Nome do escritório</label>
+        <input id="esc-nome" required placeholder="Ex: Silva &amp; Associados"/>
+      </div>
+      <div class="field">
+        <label for="esc-plano">Plano</label>
+        <select id="esc-plano">
+          <option value="solo">Solo — 1 advogado — R$ 79/mês</option>
+          <option value="pequeno">Escritório Pequeno — até 5 advogados — R$ 249/mês</option>
+          <option value="medio">Escritório Médio — até 15 advogados — R$ 549/mês</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="esc-periodicidade">Cobrança</label>
+        <select id="esc-periodicidade">
+          <option value="mensal">Mensal</option>
+          <option value="anual">Anual (20% de desconto)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Visibilidade dos processos entre membros</label>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <div class="check-item" style="cursor:pointer;">
+            <input type="radio" name="esc-modo" id="esc-modo-equipe" value="equipe" checked style="width:14px;height:14px;accent-color:var(--accent);"/>
+            <label for="esc-modo-equipe" style="margin:0;cursor:pointer;">
+              <strong>Equipe integrada</strong> — admin vê os processos de todos
+            </label>
+          </div>
+          <div class="check-item" style="cursor:pointer;">
+            <input type="radio" name="esc-modo" id="esc-modo-individual" value="individual" style="width:14px;height:14px;accent-color:var(--accent);"/>
+            <label for="esc-modo-individual" style="margin:0;cursor:pointer;">
+              <strong>Compartilhamento de estrutura</strong> — cada um vê só os próprios
+            </label>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-p btn-full" style="margin-top:6px;">Criar escritório</button>
+    </form>
+    <p id="msg-escritorio" class="status-msg"></p>
+    <p style="text-align:center;margin-top:10px;font-size:13px;color:var(--text-dim)">
+      <a href="#" id="link-voltar-opcoes-1" style="color:var(--accent)">← Voltar</a>
+    </p>
+  </div>
+</div>
+
+<!-- ENTRAR COM CONVITE (fluxo do membro) -->
+<div id="cadastro-convite" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🔑</div>
+      <div>
+        <div class="logo-name">Legifer</div>
+        <div class="logo-sub">Entrar com convite</div>
+      </div>
+    </div>
+    <form id="form-convite">
+      <div class="field">
+        <label for="conv-nome">Seu nome completo</label>
+        <input id="conv-nome" required placeholder="Seu nome"/>
+      </div>
+      <div class="field">
+        <label for="conv-email">E-mail</label>
+        <input id="conv-email" type="email" required placeholder="voce@escritorio.com.br"/>
+      </div>
+      <div class="field">
+        <label for="conv-senha">Senha (mínimo 6 caracteres)</label>
+        <input id="conv-senha" type="password" required placeholder="••••••••"/>
+      </div>
+      <div class="field">
+        <label for="conv-codigo">Código de convite</label>
+        <input id="conv-codigo" required placeholder="Ex: AB3DF7KQ" style="text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;"/>
+      </div>
+      <button type="submit" class="btn btn-p btn-full">Entrar no escritório</button>
+    </form>
+    <p id="msg-convite" class="status-msg"></p>
+    <p style="text-align:center;margin-top:10px;font-size:13px;color:var(--text-dim)">
+      <a href="#" id="link-voltar-opcoes-2" style="color:var(--accent)">← Voltar</a>
+    </p>
+  </div>
+</div>
+
+<!-- BLOQUEADO (escritório com pendência) -->
 <div id="bloqueado" style="display:none">
   <div class="login-card">
     <div class="login-logo">
@@ -446,7 +540,7 @@ select option{background:var(--surface2);color:var(--text)}
         <div class="logo-sub">Legifer</div>
       </div>
     </div>
-    <div class="alert alert-e">⚠️ <div>Sua conta está temporariamente sem acesso (geralmente por pendência de pagamento da assinatura). Entre em contato com o suporte para reativar.</div></div>
+    <div class="alert alert-e" id="msg-bloqueio">⚠️ <div>O acesso do seu escritório está temporariamente suspenso.</div></div>
     <button class="btn btn-g btn-full" id="btn-sair-bloqueado">Sair</button>
   </div>
 </div>
@@ -470,6 +564,7 @@ select option{background:var(--surface2);color:var(--text)}
         <button class="nav-item ativo" data-nav="processos">📁 Processos</button>
         <button class="nav-item" data-nav="peticao">📝 Nova Petição</button>
         <button class="nav-item" data-nav="ia">🔍 Assistente Jurídico</button>
+        <button class="nav-item" data-nav="gestao" id="nav-gestao-1" style="display:none">⚙️ Gestão do Escritório</button>
       </div>
       <div class="sidebar-footer">
         <div class="user-chip">
@@ -486,6 +581,7 @@ select option{background:var(--surface2);color:var(--text)}
       <button class="nav-item ativo" data-nav="processos">📁<span class="nav-label-tt">Processos</span></button>
       <button class="nav-item" data-nav="peticao">📝<span class="nav-label-tt">Nova Petição</span></button>
       <button class="nav-item" data-nav="ia">🔍<span class="nav-label-tt">Assistente Jurídico</span></button>
+      <button class="nav-item" data-nav="gestao" id="nav-gestao-3" style="display:none">⚙️<span class="nav-label-tt">Gestão do Escritório</span></button>
       <div class="ib-foot">
         <div class="user-av" id="av3" title="Sair" onclick="document.getElementById('btn-sair1').click()" style="cursor:pointer">?</div>
       </div>
@@ -505,6 +601,7 @@ select option{background:var(--surface2);color:var(--text)}
           <button class="nav-item ativo" data-nav="processos">📁 Processos</button>
           <button class="nav-item" data-nav="peticao">📝 Nova Petição</button>
           <button class="nav-item" data-nav="ia">🔍 Assistente Jurídico</button>
+          <button class="nav-item" data-nav="gestao" id="nav-gestao-2" style="display:none">⚙️ Gestão</button>
         </nav>
         <div class="tb-user">
           <div class="user-av" id="av2">?</div>
@@ -653,6 +750,41 @@ select option{background:var(--surface2);color:var(--text)}
         <div id="res-ia"></div>
       </div>
 
+      <!-- GESTÃO DO ESCRITÓRIO (só admin vê) -->
+      <div id="secao-gestao" class="secao">
+        <div class="page-hd"><h1>Gestão do Escritório</h1><p>Administre membros, convites e plano de assinatura.</p></div>
+
+        <!-- STATUS DO ESCRITÓRIO -->
+        <div class="card">
+          <div class="card-title">🏛️ Seu escritório</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
+            <div class="comp-f"><div class="comp-fl">Nome</div><div class="comp-fv" id="gest-nome">—</div></div>
+            <div class="comp-f"><div class="comp-fl">Status</div><div class="comp-fv" id="gest-status">—</div></div>
+            <div class="comp-f"><div class="comp-fl">Plano</div><div class="comp-fv" id="gest-plano">—</div></div>
+            <div class="comp-f"><div class="comp-fl">Membros</div><div class="comp-fv" id="gest-membros">—</div></div>
+            <div class="comp-f" style="grid-column:1/-1"><div class="comp-fl">Modo de visibilidade</div><div class="comp-fv" id="gest-modo">—</div></div>
+          </div>
+        </div>
+
+        <!-- CÓDIGO DE CONVITE -->
+        <div class="card">
+          <div class="card-title">🔑 Código de convite</div>
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Compartilhe este código com quem você quer adicionar ao escritório. Cada pessoa usa uma vez na tela de cadastro.</p>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);letter-spacing:3px;background:var(--surface2);padding:10px 18px;border-radius:8px;border:1px solid var(--border)" id="gest-codigo">——————</div>
+            <button class="btn btn-g" id="btn-copiar-codigo">📋 Copiar</button>
+            <button class="btn btn-g" id="btn-regenerar-codigo">🔄 Gerar novo</button>
+          </div>
+          <p id="msg-codigo" class="status-msg"></p>
+        </div>
+
+        <!-- MEMBROS -->
+        <div class="card">
+          <div class="card-title">👥 Membros do escritório</div>
+          <div id="lista-membros"><div class="empty"><div class="empty-icon">👥</div><p>Carregando membros...</p></div></div>
+        </div>
+      </div>
+
     </main>
   </div><!-- shell -->
 </div><!-- app -->
@@ -676,7 +808,7 @@ setTema(ts);
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import{getFirestore,collection,addDoc,query,where,onSnapshot,serverTimestamp,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import{getFirestore,collection,addDoc,query,where,onSnapshot,serverTimestamp,doc,getDoc}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 const cfg={
@@ -689,14 +821,33 @@ const cfg={
 };
 const URL_BUSCA="https://buscar-jurisprudencia-702032107490.southamerica-east1.run.app";
 const URL_PETICAO="https://gerar-peticao-702032107490.southamerica-east1.run.app";
+const URL_GESTAO="https://gerenciar-assinatura-702032107490.southamerica-east1.run.app";
 
 const app=initializeApp(cfg);
 const db=getFirestore(app);
 const auth=getAuth(app);
-const procRef=collection(db,"processos");
 let unsubProc=null;
+let dadosEscritorio=null; // cache do escritório do usuário atual
 
-/* LOGIN */
+/* ── TELAS ── */
+const TELAS=['login','opcoes-cadastro','cadastro-escritorio','cadastro-convite','bloqueado','app'];
+function mostrarTela(id){
+  TELAS.forEach(t=>{
+    const el=document.getElementById(t);
+    if(!el)return;
+    el.style.display=t===id?(t==='app'?'block':'flex'):'none';
+  });
+}
+
+/* ── NAVEGAÇÃO ENTRE TELAS DE CADASTRO ── */
+document.getElementById('link-mostrar-opcoes').addEventListener('click',e=>{e.preventDefault();mostrarTela('opcoes-cadastro');});
+document.getElementById('link-voltar-login-1').addEventListener('click',e=>{e.preventDefault();mostrarTela('login');});
+document.getElementById('link-voltar-opcoes-1').addEventListener('click',e=>{e.preventDefault();mostrarTela('opcoes-cadastro');});
+document.getElementById('link-voltar-opcoes-2').addEventListener('click',e=>{e.preventDefault();mostrarTela('opcoes-cadastro');});
+document.getElementById('btn-ir-criar-escritorio').addEventListener('click',()=>mostrarTela('cadastro-escritorio'));
+document.getElementById('btn-ir-convite').addEventListener('click',()=>mostrarTela('cadastro-convite'));
+
+/* ── LOGIN ── */
 document.getElementById('form-login').addEventListener('submit',async e=>{
   e.preventDefault();
   const msg=document.getElementById('login-msg');
@@ -708,83 +859,166 @@ document.getElementById('form-login').addEventListener('submit',async e=>{
   }catch(err){msg.textContent='Erro: '+err.code;msg.style.color='var(--danger)';}
 });
 
-/* ALTERNÂNCIA LOGIN <-> CADASTRO */
-document.getElementById('link-mostrar-cadastro').addEventListener('click',e=>{
-  e.preventDefault();
-  document.getElementById('login').style.display='none';
-  document.getElementById('cadastro').style.display='flex';
-});
-document.getElementById('link-mostrar-login').addEventListener('click',e=>{
-  e.preventDefault();
-  document.getElementById('cadastro').style.display='none';
-  document.getElementById('login').style.display='flex';
+/* ── SAIR ── */
+['btn-sair1','btn-sair2','btn-sair-bloqueado'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('click',()=>signOut(auth));
 });
 
-/* CADASTRO DE NOVO ADVOGADO */
-document.getElementById('form-cadastro').addEventListener('submit',async e=>{
+/* ── CRIAR ESCRITÓRIO ── */
+document.getElementById('form-escritorio').addEventListener('submit',async e=>{
   e.preventDefault();
-  const msg=document.getElementById('cadastro-msg');
-  msg.textContent='Criando conta...';msg.style.color='var(--text-dim)';
+  const msg=document.getElementById('msg-escritorio');
+  const btn=e.target.querySelector('button[type=submit]');
+  msg.innerHTML='<span class="spin"></span> Criando escritório...';
+  msg.style.color='var(--text-dim)';
+  btn.disabled=true;
   try{
+    // 1. Cria o usuário no Firebase Auth
     const cred=await createUserWithEmailAndPassword(auth,
-      document.getElementById('cad-email').value,
-      document.getElementById('cad-senha').value);
-    // Cria o perfil do advogado no Firestore — status "ativo" por padrão.
-    // Pra bloquear acesso depois (ex: assinatura em atraso), basta trocar
-    // este campo "status" para "bloqueado" direto no Firestore.
-    await setDoc(doc(db,'advogados',cred.user.uid),{
-      nome:document.getElementById('cad-nome').value.trim(),
-      oab:document.getElementById('cad-oab').value.trim(),
-      email:document.getElementById('cad-email').value.trim(),
-      status:'ativo',
-      criado_em:serverTimestamp()
+      document.getElementById('esc-email').value,
+      document.getElementById('esc-senha').value);
+    // 2. Pega o token pra autenticar na Cloud Function
+    const token=await cred.user.getIdToken();
+    const modo=document.querySelector('input[name="esc-modo"]:checked').value;
+    // 3. Chama o Cloud Run pra criar o escritório (sem Mercado Pago por enquanto)
+    const r=await fetch(URL_GESTAO,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({
+        acao:'criar_escritorio_teste',
+        nomeEscritorio:document.getElementById('esc-nome').value.trim(),
+        plano:document.getElementById('esc-plano').value,
+        periodicidade:document.getElementById('esc-periodicidade').value,
+        modoVisibilidade:modo,
+        emailPagador:document.getElementById('esc-email').value.trim(),
+      })
     });
-  }catch(err){msg.textContent='Erro: '+err.code;msg.style.color='var(--danger)';}
-});
-
-document.getElementById('btn-sair1').addEventListener('click',()=>signOut(auth));
-document.getElementById('btn-sair2').addEventListener('click',()=>signOut(auth));
-document.getElementById('btn-sair-bloqueado').addEventListener('click',()=>signOut(auth));
-
-onAuthStateChanged(auth,async u=>{
-  if(u){
-    // Verifica o status da conta antes de liberar qualquer acesso ao app.
-    // Isso é o que permite "descredenciar" um advogado: troca o campo
-    // "status" do documento dele em advogados/{uid} para "bloqueado".
-    let statusConta='ativo';
-    try{
-      const perfil=await getDoc(doc(db,'advogados',u.uid));
-      statusConta=perfil.exists()?(perfil.data().status||'ativo'):'ativo';
-    }catch(err){console.error('Erro ao checar status da conta:',err);}
-
-    document.getElementById('login').style.display='none';
-    document.getElementById('cadastro').style.display='none';
-
-    if(statusConta!=='ativo'){
-      document.getElementById('app').style.display='none';
-      document.getElementById('bloqueado').style.display='flex';
-      if(unsubProc)unsubProc();
-      return;
-    }
-
-    document.getElementById('bloqueado').style.display='none';
-    document.getElementById('app').style.display='block';
-    ['av1','av2','av3'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.email[0].toUpperCase();});
-    ['em1','em2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.email;});
-    escutarProc(u.uid);
-  }else{
-    document.getElementById('bloqueado').style.display='none';
-    document.getElementById('cadastro').style.display='none';
-    document.getElementById('login').style.display='flex';
-    document.getElementById('app').style.display='none';
-    if(unsubProc)unsubProc();
+    const d=await r.json();
+    if(!r.ok){msg.textContent='Erro: '+(d.erro||'Falha ao criar escritório');msg.style.color='var(--danger)';btn.disabled=false;return;}
+    msg.textContent='✓ Escritório criado! Aguarde a ativação pelo administrador do sistema.';
+    msg.style.color='var(--success)';
+    // Auth listener vai cuidar do redirecionamento
+  }catch(err){
+    msg.textContent='Erro: '+err.code;msg.style.color='var(--danger)';btn.disabled=false;
   }
 });
 
-/* NAVEGAÇÃO */
+/* ── ENTRAR COM CONVITE ── */
+document.getElementById('form-convite').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const msg=document.getElementById('msg-convite');
+  const btn=e.target.querySelector('button[type=submit]');
+  msg.innerHTML='<span class="spin"></span> Verificando convite...';
+  msg.style.color='var(--text-dim)';
+  btn.disabled=true;
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,
+      document.getElementById('conv-email').value,
+      document.getElementById('conv-senha').value);
+    const token=await cred.user.getIdToken();
+    const r=await fetch(URL_GESTAO,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({
+        acao:'entrar_com_convite',
+        codigoConvite:document.getElementById('conv-codigo').value.trim(),
+        email:document.getElementById('conv-email').value.trim(),
+      })
+    });
+    const d=await r.json();
+    if(!r.ok){
+      // Se deu erro, apaga a conta recém-criada pra não deixar órfã
+      await cred.user.delete();
+      msg.textContent='Erro: '+(d.erro||'Convite inválido');msg.style.color='var(--danger)';btn.disabled=false;return;
+    }
+    msg.textContent='✓ Vinculado ao escritório '+d.nome_escritorio+'!';
+    msg.style.color='var(--success)';
+  }catch(err){
+    msg.textContent='Erro: '+err.code;msg.style.color='var(--danger)';btn.disabled=false;
+  }
+});
+
+/* ── AUTH STATE ── */
+onAuthStateChanged(auth,async u=>{
+  if(!u){
+    dadosEscritorio=null;
+    if(unsubProc){unsubProc();unsubProc=null;}
+    mostrarTela('login');
+    return;
+  }
+
+  // Busca o perfil do advogado
+  const perfilDoc=await getDoc(doc(db,'advogados',u.uid));
+
+  // Conta criada mas ainda não vinculada a escritório (ex: criação em andamento)
+  if(!perfilDoc.exists()){
+    // Aguarda um pouco e tenta de novo (a Cloud Function pode estar gravando)
+    setTimeout(async()=>{
+      const p2=await getDoc(doc(db,'advogados',u.uid));
+      if(!p2.exists()){mostrarTela('login');return;}
+      await continuarComPerfil(u,p2);
+    },2500);
+    return;
+  }
+
+  await continuarComPerfil(u,perfilDoc);
+});
+
+async function continuarComPerfil(u,perfilDoc){
+  const perfil=perfilDoc.data();
+  const escritorioId=perfil.escritorio_id;
+
+  if(!escritorioId){mostrarTela('login');return;}
+
+  const escritorioDoc=await getDoc(doc(db,'escritorios',escritorioId));
+  if(!escritorioDoc.exists()){mostrarTela('login');return;}
+
+  dadosEscritorio={id:escritorioId,...escritorioDoc.data(),meuRole:perfil.role};
+
+  const status=dadosEscritorio.status;
+
+  if(status==='inadimplente'||status==='cancelado'){
+    const msgs={
+      inadimplente:'⚠️ Acesso suspenso por pendência de pagamento. Entre em contato com o administrador do escritório.',
+      cancelado:'⚠️ A assinatura deste escritório foi cancelada.',
+    };
+    document.getElementById('msg-bloqueio').innerHTML=msgs[status]||msgs.inadimplente;
+    mostrarTela('bloqueado');
+    return;
+  }
+
+  if(status==='pendente'){
+    document.getElementById('msg-bloqueio').innerHTML=
+      '⏳ <div>Seu escritório está aguardando ativação. Assim que for ativado pelo administrador do sistema, o acesso será liberado automaticamente.</div>';
+    mostrarTela('bloqueado');
+    return;
+  }
+
+  // Escritório ativo — entra no app
+  mostrarTela('app');
+
+  // Preenche avatares e e-mails
+  ['av1','av2','av3'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.email[0].toUpperCase();});
+  ['em1','em2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.email;});
+
+  // Mostra item Gestão só pro admin
+  if(perfil.role==='admin'){
+    ['nav-gestao-1','nav-gestao-2','nav-gestao-3'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.style.display='';
+    });
+    carregarGestao();
+  }
+
+  // Filtra processos conforme modo de visibilidade
+  escutarProc(u.uid,escritorioId,dadosEscritorio.modo_visibilidade,perfil.role);
+}
+
+/* ── NAVEGAÇÃO INTERNA ── */
 function navPara(nome){
-  ['processos','peticao','ia'].forEach(s=>{
-    document.getElementById('secao-'+s).classList.toggle('ativa',s===nome);
+  ['processos','peticao','ia','gestao'].forEach(s=>{
+    const el=document.getElementById('secao-'+s);
+    if(el)el.classList.toggle('ativa',s===nome);
   });
   document.querySelectorAll('.nav-item[data-nav]').forEach(b=>{
     b.classList.toggle('ativo',b.dataset.nav===nome);
@@ -794,12 +1028,13 @@ document.querySelectorAll('.nav-item[data-nav]').forEach(b=>{
   b.addEventListener('click',()=>navPara(b.dataset.nav));
 });
 
-/* PROCESSOS */
+/* ── PROCESSOS ── */
 document.getElementById('form-processo').addEventListener('submit',async e=>{
   e.preventDefault();
   const msg=document.getElementById('msg-proc');
+  if(!dadosEscritorio){msg.textContent='Escritório não carregado.';return;}
   try{
-    await addDoc(procRef,{
+    await addDoc(collection(db,'processos'),{
       numero_cnj:document.getElementById('numero_cnj').value,
       classe_nome:document.getElementById('classe_nome').value,
       assunto_nome:document.getElementById('assunto_nome').value,
@@ -813,6 +1048,7 @@ document.getElementById('form-processo').addEventListener('submit',async e=>{
       status:'ativo',
       data_distribuicao:document.getElementById('data_distribuicao').value||null,
       advogado_responsavel_id:auth.currentUser.uid,
+      escritorio_id:dadosEscritorio.id,
       criado_em:serverTimestamp()
     });
     msg.textContent='✓ Processo salvo.';msg.style.color='var(--success)';
@@ -820,19 +1056,24 @@ document.getElementById('form-processo').addEventListener('submit',async e=>{
   }catch(err){msg.textContent='Erro ao salvar.';msg.style.color='var(--danger)';}
 });
 
-function escutarProc(uid){
-  const q=query(procRef,where('advogado_responsavel_id','==',uid));
+function escutarProc(uid,escritorioId,modoVisibilidade,role){
+  if(unsubProc){unsubProc();unsubProc=null;}
+  // Modo equipe + admin vê todos; modo individual vê só os próprios
+  const verTodos = modoVisibilidade==='equipe' && role==='admin';
+  const q = verTodos
+    ? query(collection(db,'processos'),where('escritorio_id','==',escritorioId))
+    : query(collection(db,'processos'),where('escritorio_id','==',escritorioId),where('advogado_responsavel_id','==',uid));
+
   unsubProc=onSnapshot(q,snap=>{
     const lista=document.getElementById('lista-processos');
-    const total=snap.size;
     const mT=document.getElementById('m-total');
     const mA=document.getElementById('m-ativos');
-    if(mT)mT.textContent=total;
+    if(mT)mT.textContent=snap.size;
     if(mA)mA.textContent=snap.docs.filter(d=>d.data().status==='ativo').length;
     if(snap.empty){lista.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>Nenhum processo cadastrado.</p></div>';return;}
     lista.innerHTML='';
-    snap.forEach(doc=>{
-      const p=doc.data();
+    snap.forEach(d=>{
+      const p=d.data();
       const el=document.createElement('div');
       el.className='proc-item';
       el.innerHTML=`<div><div class="proc-cnj">${p.numero_cnj}</div><div class="proc-info">${p.classe_nome} · ${p.tribunal}${p.vara?' · '+p.vara:''}</div></div><div style="display:flex;gap:6px"><span class="badge badge-n">${p.fase}</span><span class="badge badge-ok">ativo</span></div>`;
@@ -841,7 +1082,79 @@ function escutarProc(uid){
   });
 }
 
-/* PETIÇÃO */
+/* ── GESTÃO DO ESCRITÓRIO ── */
+async function carregarGestao(){
+  if(!dadosEscritorio)return;
+  const nomes={solo:'Solo',pequeno:'Escritório Pequeno',medio:'Escritório Médio'};
+  const modos={equipe:'Equipe integrada — admin vê todos os processos',individual:'Compartilhamento de estrutura — cada um vê só os próprios'};
+
+  document.getElementById('gest-nome').textContent=dadosEscritorio.nome||'—';
+  document.getElementById('gest-status').innerHTML=
+    dadosEscritorio.status==='ativo'
+      ? '<span class="badge badge-ok">✓ Ativo</span>'
+      : '<span class="badge badge-no">'+dadosEscritorio.status+'</span>';
+  document.getElementById('gest-plano').textContent=
+    (nomes[dadosEscritorio.plano]||dadosEscritorio.plano)+
+    ' — '+(dadosEscritorio.periodicidade==='anual'?'Anual':'Mensal')+
+    ' — até '+dadosEscritorio.limite_usuarios+' usuário(s)';
+  document.getElementById('gest-modo').textContent=modos[dadosEscritorio.modo_visibilidade]||'—';
+  document.getElementById('gest-codigo').textContent=dadosEscritorio.codigo_convite||'—';
+
+  // Lista membros
+  const membrosSnap=await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js")
+    .then(({getDocs,query,collection,where})=>
+      getDocs(query(collection(db,'advogados'),where('escritorio_id','==',dadosEscritorio.id)))
+    );
+
+  const listaMembros=document.getElementById('lista-membros');
+  document.getElementById('gest-membros').textContent=membrosSnap.size+' / '+dadosEscritorio.limite_usuarios;
+
+  if(membrosSnap.empty){
+    listaMembros.innerHTML='<div class="empty"><div class="empty-icon">👥</div><p>Nenhum membro ainda.</p></div>';
+    return;
+  }
+  listaMembros.innerHTML='';
+  membrosSnap.forEach(d=>{
+    const m=d.data();
+    const el=document.createElement('div');
+    el.className='proc-item';
+    el.innerHTML=`<div><div class="proc-cnj" style="font-family:'Inter',sans-serif;font-size:13px">${m.email||d.id}</div></div>
+      <span class="badge ${m.role==='admin'?'badge-ok':'badge-n'}">${m.role==='admin'?'Admin':'Membro'}</span>`;
+    listaMembros.appendChild(el);
+  });
+}
+
+/* COPIAR E REGENERAR CÓDIGO */
+document.getElementById('btn-copiar-codigo').addEventListener('click',async()=>{
+  const codigo=document.getElementById('gest-codigo').textContent;
+  try{
+    await navigator.clipboard.writeText(codigo);
+    const b=document.getElementById('btn-copiar-codigo');
+    b.textContent='✓ Copiado!';setTimeout(()=>{b.textContent='📋 Copiar';},2000);
+  }catch{}
+});
+
+document.getElementById('btn-regenerar-codigo').addEventListener('click',async()=>{
+  const msg=document.getElementById('msg-codigo');
+  msg.innerHTML='<span class="spin"></span> Gerando novo código...';
+  msg.style.color='var(--text-dim)';
+  try{
+    const token=await auth.currentUser.getIdToken();
+    const r=await fetch(URL_GESTAO,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({acao:'regenerar_convite'})
+    });
+    const d=await r.json();
+    if(!r.ok){msg.textContent='Erro ao regenerar.';msg.style.color='var(--danger)';return;}
+    document.getElementById('gest-codigo').textContent=d.codigo_convite;
+    if(dadosEscritorio)dadosEscritorio.codigo_convite=d.codigo_convite;
+    msg.textContent='✓ Novo código gerado!';msg.style.color='var(--success)';
+    setTimeout(()=>{msg.textContent='';},3000);
+  }catch{msg.textContent='Erro ao regenerar.';msg.style.color='var(--danger)';}
+});
+
+/* ── PETIÇÃO ── */
 document.getElementById('form-peticao').addEventListener('submit',async e=>{
   e.preventDefault();
   const msg=document.getElementById('msg-pet');
@@ -863,10 +1176,10 @@ document.getElementById('form-peticao').addEventListener('submit',async e=>{
   };
   res.style.display='none';
   msg.innerHTML='<span class="spin"></span> Gerando rascunho...';
-  msg.style.color='var(--text-dim)';
-  btn.disabled=true;
+  msg.style.color='var(--text-dim)';btn.disabled=true;
   try{
-    const r=await fetch(URL_PETICAO,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({caso,advogado_id:auth.currentUser.uid})});
+    const r=await fetch(URL_PETICAO,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({caso,advogado_id:auth.currentUser.uid,escritorio_id:dadosEscritorio?.id})});
     const d=await r.json();
     if(!r.ok){msg.textContent='Erro: '+(d.erro||'Falha');msg.style.color='var(--danger)';return;}
     document.getElementById('r-vara').textContent=d.decisao_competencia.vara;
@@ -874,10 +1187,9 @@ document.getElementById('form-peticao').addEventListener('submit',async e=>{
     document.getElementById('r-rito').textContent=d.decisao_competencia.rito;
     document.getElementById('r-fund').textContent=d.decisao_competencia.fundamentacao_legal;
     document.getElementById('r-regra').textContent=d.decisao_competencia.regra_aplicada;
-    const cd=document.getElementById('cit-merito');
-    cd.innerHTML='';
-    if(!d.citacoes_merito||d.citacoes_merito.length===0){
-      cd.innerHTML='<div class="alert alert-w">⚠️ Nenhuma fonte oficial verificada — pesquise manualmente a fundamentação de mérito.</div>';
+    const cd=document.getElementById('cit-merito');cd.innerHTML='';
+    if(!d.citacoes_merito||!d.citacoes_merito.length){
+      cd.innerHTML='<div class="alert alert-w">⚠️ Nenhuma fonte oficial verificada — pesquise manualmente.</div>';
     }else{
       d.citacoes_merito.forEach(c=>{
         const card=document.createElement('div');card.className='cit-card';
@@ -898,10 +1210,10 @@ document.getElementById('btn-copiar').addEventListener('click',async()=>{
     await navigator.clipboard.writeText(document.getElementById('pet-texto').textContent);
     const b=document.getElementById('btn-copiar');b.textContent='✓ Copiado!';
     setTimeout(()=>{b.textContent='📋 Copiar';},2000);
-  }catch{alert('Selecione o texto manualmente.');}
+  }catch{alert('Selecione manualmente.');}
 });
 
-/* ASSISTENTE IA */
+/* ── ASSISTENTE IA ── */
 document.getElementById('btn-buscar').addEventListener('click',async()=>{
   const perg=document.getElementById('pergunta').value.trim();
   const msg=document.getElementById('msg-ia');
@@ -910,7 +1222,8 @@ document.getElementById('btn-buscar').addEventListener('click',async()=>{
   msg.innerHTML='<span class="spin"></span> Buscando jurisprudência...';
   msg.style.color='var(--text-dim)';res.innerHTML='';
   try{
-    const r=await fetch(URL_BUSCA,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pergunta:perg,advogado_id:auth.currentUser.uid})});
+    const r=await fetch(URL_BUSCA,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pergunta:perg,advogado_id:auth.currentUser.uid})});
     const d=await r.json();msg.textContent='';
     if(!(d.citacoes||[]).length){res.innerHTML='<div class="alert alert-w">⚠️ Nenhuma fonte oficial verificada encontrada.</div>';return;}
     (d.citacoes||[]).forEach(c=>{
